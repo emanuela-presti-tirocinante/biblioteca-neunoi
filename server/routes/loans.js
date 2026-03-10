@@ -6,7 +6,7 @@ const router = express.Router();
 // Request a Loan (User)
 router.post('/', auth, async (req, res) => {
     try {
-        const { bookId } = req.body;
+        const { bookId, data_inizio, data_fine_prevista, lugar_ritiro } = req.body;
         const userId = req.user.id;
 
         const book = await Book.findByPk(bookId);
@@ -14,6 +14,21 @@ router.post('/', auth, async (req, res) => {
 
         if (book.copie_disponibili <= 0) {
             return res.status(400).json({ message: 'Libro non disponibile al momento' });
+        }
+
+        // Validate Duration (max 31 days)
+        if (data_inizio && data_fine_prevista) {
+            const start = new Date(data_inizio);
+            const end = new Date(data_fine_prevista);
+            const diffTime = Math.abs(end - start);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            
+            if (diffDays > 31) {
+                return res.status(400).json({ message: 'La durata massima del prestito è di 31 giorni' });
+            }
+            if (end < start) {
+                return res.status(400).json({ message: 'La data di fine non può essere precedente alla data di inizio' });
+            }
         }
 
         // Check if user already has an active or requested loan for this book
@@ -32,6 +47,9 @@ router.post('/', auth, async (req, res) => {
         const loan = await Loan.create({
             userId,
             bookId,
+            data_inizio,
+            data_fine_prevista,
+            luogo_ritiro: lugar_ritiro || 'neu [nòi] - spazio al lavoro (Via Alloro, 64)', // Default if not provided
             stato: 'richiesto'
         });
 

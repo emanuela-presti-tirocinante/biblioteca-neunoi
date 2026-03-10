@@ -2,6 +2,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import api from '../utils/api';
 import { useAuth } from '../context/AuthContext';
+import LoanRequestModal from '../components/LoanRequestModal';
 
 const SearchResults = () => {
     const navigate = useNavigate();
@@ -18,6 +19,8 @@ const SearchResults = () => {
     const [error, setError] = useState(null);
     const [selectedBook, setSelectedBook] = useState(null);
     const [isSheetOpen, setIsSheetOpen] = useState(false);
+    const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const [visibleCount, setVisibleCount] = useState(10);
 
     // Update internal search box if URL query changes
@@ -55,11 +58,10 @@ const SearchResults = () => {
         }
     };
 
-    const handleLoanRequest = async (e, book) => {
+    const handleLoanRequest = (e, book) => {
         if (e) e.stopPropagation();
 
         if (!user) {
-            // Redirect to login if not authenticated
             navigate('/login', {
                 state: {
                     from: location.pathname + location.search,
@@ -69,14 +71,27 @@ const SearchResults = () => {
             return;
         }
 
+        setSelectedBook(book);
+        setIsSheetOpen(false);
+        setIsRequestModalOpen(true);
+        document.body.style.overflow = 'hidden';
+    };
+
+    const handleConfirmLoan = async (loanData) => {
+        setIsSubmitting(true);
         try {
-            const response = await api.post('/loans', { bookId: book.id });
-            alert(`Richiesta inviata! Hai richiesto: ${book.titolo}.`);
-            console.log("Prestito creato:", response.data);
+            await api.post('/loans', { 
+                bookId: selectedBook.id, 
+                ...loanData 
+            });
+            alert(`Richiesta inviata con successo per: ${selectedBook.titolo}!`);
+            setIsRequestModalOpen(false);
+            document.body.style.overflow = 'auto';
+            navigate('/dashboard');
         } catch (err) {
-            console.error(err);
-            const errorMsg = err.response?.data?.message || "Errore durante la richiesta di prestito.";
-            alert(errorMsg);
+            alert(err.response?.data?.message || 'Errore nella richiesta');
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -284,6 +299,18 @@ const SearchResults = () => {
                     </div>
                 )}
             </div>
+
+            {/* Request Loan Modal (Calendario) */}
+            <LoanRequestModal 
+                book={selectedBook}
+                isOpen={isRequestModalOpen}
+                onClose={() => {
+                    setIsRequestModalOpen(false);
+                    document.body.style.overflow = 'auto';
+                }}
+                onConfirm={handleConfirmLoan}
+                isLoading={isSubmitting}
+            />
         </div>
     );
 };

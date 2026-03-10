@@ -22,6 +22,10 @@ const Loan = sequelize.define('Loan', {
     data_restituzione_effettiva: {
         type: DataTypes.DATEONLY,
         allowNull: true
+    },
+    luogo_ritiro: {
+        type: DataTypes.STRING,
+        allowNull: true
     }
 });
 
