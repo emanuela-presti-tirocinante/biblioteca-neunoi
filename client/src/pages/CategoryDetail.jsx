@@ -121,6 +121,7 @@ const CategoryDetail = () => {
     };
 
     const handleConfirmLoan = async (loanData) => {
+        console.log('loanData ricevuto:', loanData);
         setIsSubmitting(true);
         try {
             await api.post('/loans', { 

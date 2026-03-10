@@ -12,6 +12,20 @@ const loanRoutes = require('./routes/loans');
 const quoteRoutes = require('./routes/quotes');
 const reviewRoutes = require('./routes/reviews');
 const userRoutes = require('./routes/users');
+const { sequelize } = require('./models');
+
+// Sync Database
+const syncDB = async () => {
+  try {
+    await sequelize.query('PRAGMA foreign_keys = OFF;');
+    await sequelize.sync({});
+    await sequelize.query('PRAGMA foreign_keys = ON;');
+    console.log('Database synchronized with { alter: true } (Foreign keys toggled for sync)');
+  } catch (err) {
+    console.error('Database synchronization error:', err);
+  }
+};
+syncDB();
 
 // Middleware
 app.use(cors());

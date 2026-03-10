@@ -6,7 +6,7 @@ const router = express.Router();
 // Request a Loan (User)
 router.post('/', auth, async (req, res) => {
     try {
-        const { bookId, data_inizio, data_fine_prevista, lugar_ritiro } = req.body;
+        const { bookId, data_inizio, data_fine_prevista } = req.body;
         const userId = req.user.id;
 
         const book = await Book.findByPk(bookId);
@@ -49,7 +49,6 @@ router.post('/', auth, async (req, res) => {
             bookId,
             data_inizio,
             data_fine_prevista,
-            luogo_ritiro: lugar_ritiro || 'neu [nòi] - spazio al lavoro (Via Alloro, 64)', // Default if not provided
             stato: 'richiesto'
         });
 

@@ -39,8 +39,7 @@ const LoanFormContent = ({ book, onConfirm, onCancel, isLoading, onValidationCha
         if (!error && startDate && endDate) {
             onConfirm({
                 data_inizio: startDate,
-                data_fine_prevista: endDate,
-                luogo_ritiro: 'neu [nòi] - spazio al lavoro (Via Alloro, 64)'
+                data_fine_prevista: endDate
             });
         }
     };
