@@ -27,6 +27,23 @@ const AdminRequests = () => {
         return new Date(dateString).toLocaleDateString('it-IT');
     };
 
+    const Badge = ({ count, active, isHeader = false }) => {
+        if (count === 0 && !isHeader) return null;
+        
+        const baseClasses = "ml-2 inline-flex items-center justify-center rounded-full font-black shadow-sm transition-all duration-300";
+        const sizeClasses = isHeader ? "w-6 h-6 text-[10px]" : "w-5 h-5 text-[9px]";
+        
+        const colorClasses = active 
+            ? "bg-white text-secondary" 
+            : "bg-secondary text-white";
+
+        return (
+            <span className={`${baseClasses} ${sizeClasses} ${colorClasses}`}>
+                {count}
+            </span>
+        );
+    };
+
     useEffect(() => {
         fetchLoans();
     }, []);
@@ -72,9 +89,13 @@ const AdminRequests = () => {
         case 'pending':
             return (
                 <div className="space-y-4">
-                    <h2 className="text-primary font-black text-sm uppercase tracking-tight border-l-4 border-secondary pl-3 mb-6">
-                        RICHIESTE IN ATTESA ({pendingRequests.length})
-                    </h2>
+                    <div className="flex items-center mb-6">
+                        <div className="h-6 w-1 bg-secondary rounded-full mr-3"></div>
+                        <h2 className="text-primary font-black text-sm uppercase tracking-tight flex items-center">
+                            RICHIESTE IN ATTESA
+                            <Badge count={pendingRequests.length} active={false} isHeader={true} />
+                        </h2>
+                    </div>
                     {pendingRequests.length === 0 ? (
                         <p className="text-[10px] text-gray-400 font-bold uppercase italic py-8 bg-gray-50 rounded-xl border border-dashed border-gray-200 text-center">Nessuna richiesta in attesa</p>
                     ) : (
@@ -159,6 +180,7 @@ const AdminRequests = () => {
             );
             case 'active':
             const getDeadlineStatus = (dueDate) => {
+                // ... (existing logic)
                 if (!dueDate) return { color: 'bg-gray-400', text: 'N/D' };
                 const today = new Date();
                 today.setHours(0, 0, 0, 0);
@@ -174,9 +196,13 @@ const AdminRequests = () => {
 
             return (
                 <div className="space-y-4">
-                    <h2 className="text-primary font-black text-sm uppercase tracking-tight border-l-4 border-secondary pl-3 mb-6">
-                        PRESTITI ATTIVI ({activeLoans.length})
-                    </h2>
+                    <div className="flex items-center mb-6">
+                        <div className="h-6 w-1 bg-secondary rounded-full mr-3"></div>
+                        <h2 className="text-primary font-black text-sm uppercase tracking-tight flex items-center">
+                            PRESTITI ATTIVI
+                            <Badge count={activeLoans.length} active={false} isHeader={true} />
+                        </h2>
+                    </div>
                     {activeLoans.length === 0 ? (
                         <p className="text-[10px] text-gray-400 font-bold uppercase italic py-8 bg-gray-50 rounded-xl border border-dashed border-gray-200 text-center">Nessun prestito attivo</p>
                     ) : (
@@ -264,6 +290,7 @@ const AdminRequests = () => {
             );
             case 'history':
             const getStatusBadge = (stato) => {
+                // ... (existing logic)
                 switch (stato) {
                     case 'restituito': return { color: 'bg-blue-500', text: 'RESTITUITO' };
                     case 'rifiutato': return { color: 'bg-gray-500', text: 'RIFIUTATO' };
@@ -274,9 +301,13 @@ const AdminRequests = () => {
 
             return (
                 <div className="space-y-4">
-                    <h2 className="text-primary font-black text-sm uppercase tracking-tight border-l-4 border-secondary pl-3 mb-6">
-                        STORICO ({historyLoans.length})
-                    </h2>
+                    <div className="flex items-center mb-6">
+                        <div className="h-6 w-1 bg-secondary rounded-full mr-3"></div>
+                        <h2 className="text-primary font-black text-sm uppercase tracking-tight flex items-center">
+                            STORICO
+                            <Badge count={historyLoans.length} active={false} isHeader={true} />
+                        </h2>
+                    </div>
                     {historyLoans.length === 0 ? (
                         <p className="text-[10px] text-gray-400 font-bold uppercase italic py-8 bg-gray-50 rounded-xl border border-dashed border-gray-200 text-center">Lo storico è vuoto</p>
                     ) : (
@@ -371,34 +402,36 @@ const AdminRequests = () => {
                 </h1>
             </div>
 
-            {/* Tab Navigation */}
             <div className="bg-white border-b border-gray-100 px-4 py-4 flex overflow-x-auto no-scrollbar space-x-3 items-center sticky top-0 z-20">
                 <button
                     onClick={() => setActiveTab('pending')}
-                    className={`px-6 py-2 rounded-[20px] text-[10px] font-black uppercase tracking-wider whitespace-nowrap transition-all
+                    className={`px-6 py-2 rounded-[20px] text-[10px] font-black uppercase tracking-wider whitespace-nowrap transition-all flex items-center
                         ${activeTab === 'pending'
                             ? 'bg-secondary text-white shadow-[0_2px_8px_-2px_rgba(226,31,29,0.3)]'
                             : 'bg-[#F5F5F5] text-gray-600 hover:bg-gray-200'}`}
                 >
-                    IN ATTESA ({pendingRequests.length})
+                    IN ATTESA
+                    <Badge count={pendingRequests.length} active={activeTab === 'pending'} />
                 </button>
                 <button
                     onClick={() => setActiveTab('active')}
-                    className={`px-6 py-2 rounded-[20px] text-[10px] font-black uppercase tracking-wider whitespace-nowrap transition-all
+                    className={`px-6 py-2 rounded-[20px] text-[10px] font-black uppercase tracking-wider whitespace-nowrap transition-all flex items-center
                         ${activeTab === 'active'
                             ? 'bg-secondary text-white shadow-[0_2px_8px_-2px_rgba(226,31,29,0.3)]'
                             : 'bg-[#F5F5F5] text-gray-600 hover:bg-gray-200'}`}
                 >
-                    ATTIVI ({activeLoans.length})
+                    ATTIVI
+                    <Badge count={activeLoans.length} active={activeTab === 'active'} />
                 </button>
                 <button
                     onClick={() => setActiveTab('history')}
-                    className={`px-6 py-2 rounded-[20px] text-[10px] font-black uppercase tracking-wider whitespace-nowrap transition-all
+                    className={`px-6 py-2 rounded-[20px] text-[10px] font-black uppercase tracking-wider whitespace-nowrap transition-all flex items-center
                         ${activeTab === 'history'
                             ? 'bg-secondary text-white shadow-[0_2px_8px_-2px_rgba(226,31,29,0.3)]'
                             : 'bg-[#F5F5F5] text-gray-600 hover:bg-gray-200'}`}
                 >
-                    STORICO ({historyLoans.length})
+                    STORICO
+                    <Badge count={historyLoans.length} active={activeTab === 'history'} />
                 </button>
             </div>
 
