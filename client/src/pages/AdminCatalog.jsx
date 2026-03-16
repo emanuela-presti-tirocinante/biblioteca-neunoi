@@ -1,10 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import api from '../utils/api';
 
 const AdminCatalog = () => {
     const navigate = useNavigate();
-    const [activeTab, setActiveTab] = useState('books'); // 'books' or 'categories'
+    const location = useLocation();
+    const [activeTab, setActiveTab] = useState(location.state?.tab || 'books'); // 'books' or 'categories'
     const [stats, setStats] = useState({ books: 0, categories: 0 });
     const [books, setBooks] = useState([]);
     const [categories, setCategories] = useState([]);
@@ -71,7 +72,11 @@ const AdminCatalog = () => {
             await api.delete(endpoint);
             setIsDeleteSheetOpen(false);
             if (deleteType === 'book') fetchBooks();
-            else fetchCategories();
+            else {
+                fetchCategories();
+                // If we are on categories tab, we might want to ensure we stay there
+                // though usually deletion happens on the current tab.
+            }
             fetchStats();
         } catch (error) {
             console.error("Error deleting item:", error);
@@ -90,7 +95,7 @@ const AdminCatalog = () => {
     }, []);
 
     useEffect(() => {
-        if (activeTab === 'categories') fetchCategories(); 
+        if (activeTab === 'categories') fetchCategories();
     }, [activeTab]);
 
     useEffect(() => {

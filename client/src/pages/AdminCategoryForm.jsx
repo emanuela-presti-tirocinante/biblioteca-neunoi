@@ -45,7 +45,7 @@ const AdminCategoryForm = () => {
             } else {
                 await api.post('/categories', categoryFormData);
             }
-            navigate('/admin/catalog');
+            navigate('/admin/catalog', { state: { tab: 'categories' } });
         } catch (error) {
             console.error("Error saving category:", error);
             alert("Errore durante il salvataggio");
@@ -73,7 +73,7 @@ const AdminCategoryForm = () => {
                     <div className="flex items-center space-x-4 mb-2">
                         <button 
                             type="button"
-                            onClick={() => navigate('/admin/catalog')}
+                            onClick={() => navigate('/admin/catalog', { state: { tab: 'categories' } })}
                             className="p-3 bg-gray-50 text-primary rounded-2xl hover:bg-primary hover:text-white transition-all shadow-sm"
                         >
                             <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -114,7 +114,7 @@ const AdminCategoryForm = () => {
                     <div className="pt-8 flex space-x-4">
                         <button 
                             type="button"
-                            onClick={() => navigate('/admin/catalog')}
+                            onClick={() => navigate('/admin/catalog', { state: { tab: 'categories' } })}
                             className="flex-grow bg-white border border-gray-100 text-gray-400 py-5 rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-gray-50 transition-all"
                         >
                             Annulla
