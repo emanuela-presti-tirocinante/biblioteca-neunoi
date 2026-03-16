@@ -175,7 +175,7 @@ const SearchResults = () => {
                                     {/* Image Section (Left) */}
                                     <div className="w-24 h-36 flex-shrink-0 overflow-hidden bg-gray-100 rounded-lg">
                                         <img
-                                            src={book.copertina_url || "https://via.placeholder.com/150x200/d1e9ff/1a5e6a?text=Biblioteca+Neu"}
+                                            src={book.copertina_url || "/book-placeholder.svg"}
                                             alt={book.titolo}
                                             className="w-full h-full object-cover"
                                         />
@@ -259,7 +259,7 @@ const SearchResults = () => {
                     <div className="overflow-y-auto px-8 pt-6 pb-8 flex flex-col">
                         <div className="flex flex-col items-center mb-6">
                             <img
-                                src={selectedBook.copertina_url || "https://via.placeholder.com/150x200/d1e9ff/1a5e6a?text=Biblioteca+Neu"}
+                                src={selectedBook.copertina_url || "/book-placeholder.svg"}
                                 alt={selectedBook.titolo}
                                 className="w-48 h-64 object-cover rounded-md shadow-lg mb-4"
                             />
