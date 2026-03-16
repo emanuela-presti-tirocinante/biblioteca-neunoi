@@ -163,21 +163,27 @@ const AdminCatalog = () => {
             <div className="bg-white border-b border-gray-100 px-4 py-4 flex overflow-x-auto no-scrollbar space-x-3 items-center sticky top-0 z-20">
                 <button
                     onClick={() => { setActiveTab('books'); setSearch(''); }}
-                    className={`px-6 py-2 rounded-[20px] text-[10px] font-black uppercase tracking-wider whitespace-nowrap transition-all
+                    className={`relative overflow-visible px-6 py-2 rounded-[20px] text-[10px] font-black uppercase tracking-wider transition-all
                         ${activeTab === 'books'
                             ? 'bg-secondary text-white shadow-lg'
                             : 'bg-[#F2F2F2] text-gray-400 hover:bg-gray-200'}`}
                 >
-                    LIBRI ({stats.books})
+                    LIBRI
+                    <span className="absolute top-0 right-0 translate-x-1/2 -translate-y-1/2 bg-yellow-400 text-gray-900 text-[9px] font-black w-5 h-5 flex items-center justify-center rounded-full shadow-md border-2 border-white z-10 transition-all duration-300">
+                        {stats.books}
+                    </span>
                 </button>
                 <button
                     onClick={() => { setActiveTab('categories'); setSearch(''); }}
-                    className={`px-6 py-2 rounded-[20px] text-[10px] font-black uppercase tracking-wider whitespace-nowrap transition-all
+                    className={`relative overflow-visible px-6 py-2 rounded-[20px] text-[10px] font-black uppercase tracking-wider transition-all
                         ${activeTab === 'categories'
                             ? 'bg-secondary text-white shadow-lg'
                             : 'bg-[#F2F2F2] text-gray-400 hover:bg-gray-200'}`}
                 >
-                    CATEGORIE ({stats.categories})
+                    CATEGORIE
+                    <span className="absolute top-0 right-0 translate-x-1/2 -translate-y-1/2 bg-yellow-400 text-gray-900 text-[9px] font-black w-5 h-5 flex items-center justify-center rounded-full shadow-md border-2 border-white z-10 transition-all duration-300">
+                        {stats.categories}
+                    </span>
                 </button>
             </div>
 

@@ -30,15 +30,16 @@ const AdminRequests = () => {
     const Badge = ({ count, active, isHeader = false }) => {
         if (count === 0 && !isHeader) return null;
         
-        const baseClasses = "ml-2 inline-flex items-center justify-center rounded-full font-black shadow-sm transition-all duration-300";
-        const sizeClasses = isHeader ? "w-6 h-6 text-[10px]" : "w-5 h-5 text-[9px]";
-        
-        const colorClasses = active 
-            ? "bg-white text-secondary" 
-            : "bg-secondary text-white";
+        if (isHeader) {
+            return (
+                <span className="ml-2 inline-flex items-center justify-center rounded-full font-black shadow-sm transition-all duration-300 w-6 h-6 text-[10px] bg-yellow-400 text-gray-900">
+                    {count}
+                </span>
+            );
+        }
 
         return (
-            <span className={`${baseClasses} ${sizeClasses} ${colorClasses}`}>
+            <span className="absolute top-0 right-0 translate-x-1/2 -translate-y-1/2 bg-yellow-400 text-gray-900 text-[9px] font-black w-5 h-5 flex items-center justify-center rounded-full shadow-md border-2 border-white z-10 transition-all duration-300">
                 {count}
             </span>
         );
@@ -402,10 +403,10 @@ const AdminRequests = () => {
                 </h1>
             </div>
 
-            <div className="bg-white border-b border-gray-100 px-4 py-4 flex overflow-x-auto no-scrollbar space-x-3 items-center sticky top-0 z-20">
+            <div className="bg-white border-b border-gray-100 px-6 py-4 flex w-full space-x-3 items-center sticky top-0 z-20">
                 <button
                     onClick={() => { setActiveTab('pending'); setExpandedCardId(null); }}
-                    className={`px-6 py-2 rounded-[20px] text-[10px] font-black uppercase tracking-wider whitespace-nowrap transition-all flex items-center
+                    className={`flex-1 relative overflow-visible px-2 py-3 rounded-[20px] text-[10px] font-black uppercase tracking-wider transition-all
                         ${activeTab === 'pending'
                             ? 'bg-secondary text-white shadow-[0_2px_8px_-2px_rgba(226,31,29,0.3)]'
                             : 'bg-[#F5F5F5] text-gray-600 hover:bg-gray-200'}`}
@@ -415,7 +416,7 @@ const AdminRequests = () => {
                 </button>
                 <button
                     onClick={() => { setActiveTab('active'); setExpandedCardId(null); }}
-                    className={`px-6 py-2 rounded-[20px] text-[10px] font-black uppercase tracking-wider whitespace-nowrap transition-all flex items-center
+                    className={`flex-1 relative overflow-visible px-2 py-3 rounded-[20px] text-[10px] font-black uppercase tracking-wider transition-all
                         ${activeTab === 'active'
                             ? 'bg-secondary text-white shadow-[0_2px_8px_-2px_rgba(226,31,29,0.3)]'
                             : 'bg-[#F5F5F5] text-gray-600 hover:bg-gray-200'}`}
@@ -425,7 +426,7 @@ const AdminRequests = () => {
                 </button>
                 <button
                     onClick={() => { setActiveTab('history'); setExpandedCardId(null); }}
-                    className={`px-6 py-2 rounded-[20px] text-[10px] font-black uppercase tracking-wider whitespace-nowrap transition-all flex items-center
+                    className={`flex-1 relative overflow-visible px-2 py-3 rounded-[20px] text-[10px] font-black uppercase tracking-wider transition-all
                         ${activeTab === 'history'
                             ? 'bg-secondary text-white shadow-[0_2px_8px_-2px_rgba(226,31,29,0.3)]'
                             : 'bg-[#F5F5F5] text-gray-600 hover:bg-gray-200'}`}
