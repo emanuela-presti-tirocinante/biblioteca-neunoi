@@ -8,12 +8,10 @@ import Registration from './pages/Registration';
 import ForgotPassword from './pages/ForgotPassword';
 import SearchResults from './pages/SearchResults';
 import Dashboard from './pages/Dashboard';
-import AdminDashboard from './pages/AdminDashboard';
 import AdminRequests from './pages/AdminRequests';
 import AdminCatalog from './pages/AdminCatalog';
 import AdminBookForm from './pages/AdminBookForm';
 import AdminCategoryForm from './pages/AdminCategoryForm';
-import BookDetails from './pages/BookDetails';
 import Profile from './pages/Profile';
 import EditProfile from './pages/EditProfile';
 
@@ -24,7 +22,6 @@ function App() {
                 <Routes>
                     <Route path="/" element={<Home />} />
                     <Route path="/category/:id" element={<CategoryDetail />} />
-                    <Route path="/books/:id" element={<BookDetails />} />
                     <Route path="/login" element={<Login />} />
                     <Route path="/register" element={<Registration />} />
                     <Route path="/forgot-password" element={<ForgotPassword />} />
@@ -39,7 +36,6 @@ function App() {
 
                     {/* Protected Admin Routes */}
                     <Route element={<PrivateRoute adminOnly={true} />}>
-                        <Route path="/admin" element={<AdminDashboard />} />
                         <Route path="/admin/request" element={<AdminRequests />} />
                         <Route path="/admin/catalog" element={<AdminCatalog />} />
                         <Route path="/admin/catalog/book/add" element={<AdminBookForm />} />
