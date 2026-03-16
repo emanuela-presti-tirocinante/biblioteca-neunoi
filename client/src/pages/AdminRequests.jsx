@@ -404,7 +404,7 @@ const AdminRequests = () => {
 
             <div className="bg-white border-b border-gray-100 px-4 py-4 flex overflow-x-auto no-scrollbar space-x-3 items-center sticky top-0 z-20">
                 <button
-                    onClick={() => setActiveTab('pending')}
+                    onClick={() => { setActiveTab('pending'); setExpandedCardId(null); }}
                     className={`px-6 py-2 rounded-[20px] text-[10px] font-black uppercase tracking-wider whitespace-nowrap transition-all flex items-center
                         ${activeTab === 'pending'
                             ? 'bg-secondary text-white shadow-[0_2px_8px_-2px_rgba(226,31,29,0.3)]'
@@ -414,7 +414,7 @@ const AdminRequests = () => {
                     <Badge count={pendingRequests.length} active={activeTab === 'pending'} />
                 </button>
                 <button
-                    onClick={() => setActiveTab('active')}
+                    onClick={() => { setActiveTab('active'); setExpandedCardId(null); }}
                     className={`px-6 py-2 rounded-[20px] text-[10px] font-black uppercase tracking-wider whitespace-nowrap transition-all flex items-center
                         ${activeTab === 'active'
                             ? 'bg-secondary text-white shadow-[0_2px_8px_-2px_rgba(226,31,29,0.3)]'
@@ -424,7 +424,7 @@ const AdminRequests = () => {
                     <Badge count={activeLoans.length} active={activeTab === 'active'} />
                 </button>
                 <button
-                    onClick={() => setActiveTab('history')}
+                    onClick={() => { setActiveTab('history'); setExpandedCardId(null); }}
                     className={`px-6 py-2 rounded-[20px] text-[10px] font-black uppercase tracking-wider whitespace-nowrap transition-all flex items-center
                         ${activeTab === 'history'
                             ? 'bg-secondary text-white shadow-[0_2px_8px_-2px_rgba(226,31,29,0.3)]'
