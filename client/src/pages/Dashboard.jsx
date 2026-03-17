@@ -24,6 +24,24 @@ const Dashboard = () => {
         }
     };
 
+    const Badge = ({ count, active, isHeader = false }) => {
+        if (count === 0 && !isHeader) return null;
+        
+        if (isHeader) {
+            return (
+                <span className="ml-2 inline-flex items-center justify-center rounded-full font-black shadow-sm transition-all duration-300 w-6 h-6 text-[10px] bg-yellow-400 text-gray-900">
+                    {count}
+                </span>
+            );
+        }
+
+        return (
+            <span className="absolute top-0 right-0 translate-x-1/2 -translate-y-1/2 bg-yellow-400 text-gray-900 text-[9px] font-black w-5 h-5 flex items-center justify-center rounded-full shadow-md border-2 border-white z-10 transition-all duration-300">
+                {count}
+            </span>
+        );
+    };
+
     const handleCancelLoan = async (loanId) => {
         if (!window.confirm('Sei sicuro di voler annullare questa richiesta di prestito?')) return;
 
@@ -43,6 +61,10 @@ const Dashboard = () => {
         if (activeTab === 'storico') return loan.stato === 'restituito' || loan.stato === 'rifiutato';
         return false;
     });
+
+    const inCorsoLoans = loans.filter(l => l.stato === 'approvato');
+    const inAttesaLoans = loans.filter(l => l.stato === 'richiesto');
+    const storicoLoans = loans.filter(l => l.stato === 'restituito' || l.stato === 'rifiutato');
 
     const getStatusLabel = (stato) => {
         const labels = {
@@ -73,23 +95,37 @@ const Dashboard = () => {
             </div>
 
             {/* Tab Selector */}
-            <div className="bg-white border-b border-gray-100 flex justify-between px-6 py-4 sticky top-14 z-20 shadow-sm overflow-x-auto no-scrollbar space-x-2">
-                {[
-                    { id: 'in_corso', label: 'In corso' },
-                    { id: 'in_attesa', label: 'In attesa' },
-                    { id: 'storico', label: 'Storico' }
-                ].map(tab => (
-                    <button
-                        key={tab.id}
-                        onClick={() => setActiveTab(tab.id)}
-                        className={`flex-1 py-2.5 px-4 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all whitespace-nowrap
-                            ${activeTab === tab.id
-                                ? 'bg-secondary text-white shadow-md'
-                                : 'bg-[#F5F5F5] text-gray-500 hover:bg-gray-200'}`}
-                    >
-                        {tab.label}
-                    </button>
-                ))}
+            <div className="bg-white border-b border-gray-100 flex justify-between px-6 py-4 sticky top-14 z-20 shadow-sm overflow-x-auto no-scrollbar space-x-3 items-center">
+                <button
+                    onClick={() => setActiveTab('in_corso')}
+                    className={`flex-1 relative overflow-visible py-2.5 px-4 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all whitespace-nowrap
+                        ${activeTab === 'in_corso'
+                            ? 'bg-secondary text-white shadow-md'
+                            : 'bg-[#F5F5F5] text-gray-500 hover:bg-gray-200'}`}
+                >
+                    In corso
+                    <Badge count={inCorsoLoans.length} active={activeTab === 'in_corso'} />
+                </button>
+                <button
+                    onClick={() => setActiveTab('in_attesa')}
+                    className={`flex-1 relative overflow-visible py-2.5 px-4 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all whitespace-nowrap
+                        ${activeTab === 'in_attesa'
+                            ? 'bg-secondary text-white shadow-md'
+                            : 'bg-[#F5F5F5] text-gray-500 hover:bg-gray-200'}`}
+                >
+                    In attesa
+                    <Badge count={inAttesaLoans.length} active={activeTab === 'in_attesa'} />
+                </button>
+                <button
+                    onClick={() => setActiveTab('storico')}
+                    className={`flex-1 relative overflow-visible py-2.5 px-4 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all whitespace-nowrap
+                        ${activeTab === 'storico'
+                            ? 'bg-secondary text-white shadow-md'
+                            : 'bg-[#F5F5F5] text-gray-500 hover:bg-gray-200'}`}
+                >
+                    Storico
+                    <Badge count={storicoLoans.length} active={activeTab === 'storico'} />
+                </button>
             </div>
 
             <div className="px-6 py-8 flex flex-col space-y-6">
