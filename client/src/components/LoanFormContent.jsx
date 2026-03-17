@@ -1,4 +1,8 @@
 import { useState, useEffect } from 'react';
+import { DayPicker } from 'react-day-picker';
+import 'react-day-picker/dist/style.css';
+import { it } from 'date-fns/locale';
+import { format } from 'date-fns';
 
 const LoanFormContent = ({ book, onConfirm, onCancel, isLoading, onValidationChange }) => {
     const [startDate, setStartDate] = useState(new Date().toISOString().split('T')[0]);
@@ -52,27 +56,52 @@ const LoanFormContent = ({ book, onConfirm, onCancel, isLoading, onValidationCha
                         <h3 className="text-primary font-black text-xs uppercase tracking-tight">Periodo del Prestito</h3>
                     </div>
                     
-                    <div className="grid grid-cols-2 gap-3">
-                        <div className="space-y-1.5">
-                            <label className="text-[8px] font-black text-gray-400 uppercase tracking-widest ml-1">Dal (Inizio)</label>
-                            <input 
-                                type="date"
-                                min={new Date().toISOString().split('T')[0]}
-                                value={startDate}
-                                onChange={(e) => setStartDate(e.target.value)}
-                                className="w-full bg-gray-50 border border-gray-100 rounded-2xl px-4 py-3.5 text-xs font-black text-primary focus:outline-none focus:ring-2 focus:ring-secondary/20 transition-all"
-                            />
+                    <div className="bg-gray-50 border border-gray-100 rounded-3xl p-4 flex flex-col items-center">
+                        <div className="w-full text-center py-2 mb-4 border-b border-gray-200">
+                            {startDate && endDate ? (
+                                <p className="text-[10px] font-black text-primary uppercase tracking-widest">
+                                    Dal <span className="text-secondary">{format(new Date(startDate), 'dd/MM/yyyy')}</span> al <span className="text-secondary">{format(new Date(endDate), 'dd/MM/yyyy')}</span>
+                                </p>
+                            ) : (
+                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                                    Seleziona il periodo del prestito
+                                </p>
+                            )}
                         </div>
-                        <div className="space-y-1.5">
-                            <label className="text-[8px] font-black text-gray-400 uppercase tracking-widest ml-1">Al (Fine)</label>
-                            <input 
-                                type="date"
-                                min={startDate}
-                                value={endDate}
-                                onChange={(e) => setEndDate(e.target.value)}
-                                className="w-full bg-gray-50 border border-gray-100 rounded-2xl px-4 py-3.5 text-xs font-black text-primary focus:outline-none focus:ring-2 focus:ring-secondary/20 transition-all"
-                            />
-                        </div>
+                        
+                        <DayPicker
+                            mode="range"
+                            selected={{ 
+                                from: startDate ? new Date(startDate) : undefined, 
+                                to: endDate ? new Date(endDate) : undefined 
+                            }}
+                            onSelect={(range) => {
+                                if (range?.from) {
+                                    setStartDate(format(range.from, 'yyyy-MM-dd'));
+                                } else {
+                                    setStartDate('');
+                                }
+                                if (range?.to) {
+                                    setEndDate(format(range.to, 'yyyy-MM-dd'));
+                                } else {
+                                    setEndDate('');
+                                }
+                            }}
+                            disabled={{ before: new Date() }}
+                            locale={it}
+                            classNames={{
+                                day: "text-[10px] transition-all hover:bg-secondary/20 rounded-lg h-9 w-9 p-0 font-normal aria-selected:opacity-100",
+                                range_start: "bg-secondary text-white rounded-full font-black",
+                                range_end: "bg-secondary text-white rounded-full font-black",
+                                range_middle: "bg-accent/40 text-primary !rounded-none",
+                                selected: "bg-secondary text-white",
+                                today: "text-secondary font-black",
+                                disabled: "text-gray-300 opacity-50 cursor-not-allowed",
+                                caption_label: "text-xs font-black uppercase text-primary tracking-widest",
+                                nav_button: "hover:bg-gray-100 rounded-lg transition-colors",
+                            }}
+                            className="loan-day-picker"
+                        />
                     </div>
 
                     {error ? (
