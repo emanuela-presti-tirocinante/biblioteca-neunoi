@@ -7,7 +7,7 @@ const { Op } = Sequelize;
 // Get all books (with filters and search)
 router.get('/', async (req, res) => {
     try {
-        const { search, category, page = 1, limit = 10 } = req.query;
+        const { search, category, page = 1, limit = 20 } = req.query;
         const offset = (page - 1) * limit;
 
         let where = {};
