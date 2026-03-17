@@ -120,6 +120,10 @@ const AdminCatalog = () => {
         }
     }, [books]);
 
+    const scrollToTop = () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
 
     const renderDeleteSheet = () => {
         if (!isDeleteSheetOpen) return null;
@@ -416,6 +420,15 @@ const AdminCatalog = () => {
                     )}
                 </div>
             </div>
+            {/* Back to top button */}
+            <button
+                onClick={scrollToTop}
+                className="fixed bottom-6 right-6 w-12 h-12 bg-primary text-white rounded-full flex items-center justify-center shadow-lg active:scale-95 transition-all z-40 border-2 border-accent"
+            >
+                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 15l7-7 7 7" />
+                </svg>
+            </button>
         </div>
     );
 };
