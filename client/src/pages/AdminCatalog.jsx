@@ -17,9 +17,8 @@ const AdminCatalog = () => {
     const [itemToDelete, setItemToDelete] = useState(null);
     const [deleteType, setDeleteType] = useState(null); // 'book' o 'category'
     const [page, setPage] = useState(1);
-    const [hasMore, setHasMore] = useState(false);
+    const [totalPages, setTotalPages] = useState(1);
     const categoryDropdownRef = useRef(null);
-    const firstNewBookRef = useRef(null);
 
     const fetchBooks = async (p = 1) => {
         setIsLoadingData(true);
@@ -31,15 +30,11 @@ const AdminCatalog = () => {
                 page: p
             };
             const res = await api.get('/books', { params });
-            const { books: newBooks, totalPages } = res.data;
-            
-            if (p === 1) {
-                setBooks(newBooks);
-            } else {
-                setBooks(prev => [...prev, ...newBooks]);
-            }
-            setHasMore(p < totalPages);
+            const { books: newBooks, totalPages: tp } = res.data;
+            setBooks(newBooks);
+            setTotalPages(tp || 1);
             setPage(p);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         } catch (error) {
             console.error("Error fetching books:", error);
         } finally {
@@ -111,14 +106,11 @@ const AdminCatalog = () => {
     }, [activeTab]);
 
     useEffect(() => {
-        if (activeTab === 'books') fetchBooks(1);
-    }, [search, selectedCategory]);
-
-    useEffect(() => {
-        if (page > 1 && firstNewBookRef.current) {
-            firstNewBookRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        if (activeTab === 'books') {
+            setPage(1);
+            fetchBooks(1);
         }
-    }, [books]);
+    }, [search, selectedCategory]);
 
     const scrollToTop = () => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -328,10 +320,9 @@ const AdminCatalog = () => {
                                         <p className="text-[10px] font-black uppercase text-gray-300 tracking-widest italic">Nessun libro trovato</p>
                                     </div>
                                 ) : (
-                                    books.map((book, index) => (
+                                    books.map((book) => (
                                         <div 
                                             key={book.id} 
-                                            ref={index === (page - 1) * 100 ? firstNewBookRef : null}
                                             className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all flex justify-between items-center group text-left"
                                         >
                                             <div className="space-y-1 pr-4">
@@ -404,20 +395,67 @@ const AdminCatalog = () => {
                         </div>
                     )}
 
-                    {/* Load More Button */}
-                    {activeTab === 'books' && hasMore && (
-                        <div className="flex justify-center pt-4 pb-8">
-                            <button
-                                onClick={() => fetchBooks(page + 1)}
-                                className="px-8 py-3 bg-secondary text-white rounded-full font-black uppercase text-[10px] tracking-widest hover:bg-secondary/90 transition-all active:scale-95 shadow-lg flex items-center space-x-2"
-                            >
-                                <span>Carica altri ({stats.books - books.length})</span>
-                                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M19 9l-7 7-7-7" />
-                                </svg>
-                            </button>
-                        </div>
-                    )}
+                    {/* Pagination */}
+                    {activeTab === 'books' && totalPages > 1 && (() => {
+                        const btnBase = "rounded-xl font-black text-[10px] uppercase shadow-sm w-8 h-8 flex items-center justify-center transition-all active:scale-95";
+                        const btnActive = "bg-secondary text-white";
+                        const btnDefault = "bg-white text-primary border border-gray-100 hover:border-secondary/40";
+                        const btnArrow = "bg-white text-primary border border-gray-100 hover:border-secondary/40";
+
+                        // Build page number list with ellipsis (max 5 visible)
+                        const buildPages = () => {
+                            if (totalPages <= 5) return Array.from({ length: totalPages }, (_, i) => i + 1);
+                            const pages = [];
+                            if (page <= 3) {
+                                pages.push(1, 2, 3, 4, '...', totalPages);
+                            } else if (page >= totalPages - 2) {
+                                pages.push(1, '...', totalPages - 3, totalPages - 2, totalPages - 1, totalPages);
+                            } else {
+                                pages.push(1, '...', page - 1, page, page + 1, '...', totalPages);
+                            }
+                            return pages;
+                        };
+
+                        return (
+                            <div className="flex justify-center items-center gap-1.5 pt-4 pb-8">
+                                {/* Previous */}
+                                <button
+                                    onClick={() => fetchBooks(page - 1)}
+                                    disabled={page === 1}
+                                    className={`${btnBase} ${btnArrow} disabled:opacity-30 disabled:cursor-not-allowed`}
+                                >
+                                    <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M15 19l-7-7 7-7" />
+                                    </svg>
+                                </button>
+
+                                {buildPages().map((p, i) =>
+                                    p === '...' ? (
+                                        <span key={`ellipsis-${i}`} className="w-8 h-8 flex items-center justify-center text-[10px] font-black text-gray-300">…</span>
+                                    ) : (
+                                        <button
+                                            key={p}
+                                            onClick={() => fetchBooks(p)}
+                                            className={`${btnBase} ${p === page ? btnActive : btnDefault}`}
+                                        >
+                                            {p}
+                                        </button>
+                                    )
+                                )}
+
+                                {/* Next */}
+                                <button
+                                    onClick={() => fetchBooks(page + 1)}
+                                    disabled={page === totalPages}
+                                    className={`${btnBase} ${btnArrow} disabled:opacity-30 disabled:cursor-not-allowed`}
+                                >
+                                    <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M9 5l7 7-7 7" />
+                                    </svg>
+                                </button>
+                            </div>
+                        );
+                    })()}
                 </div>
             </div>
             {/* Back to top button */}
