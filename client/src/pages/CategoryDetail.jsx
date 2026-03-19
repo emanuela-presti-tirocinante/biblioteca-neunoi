@@ -21,7 +21,7 @@ const CategoryDetail = () => {
     // Pagination states
     const [currentPage, setCurrentPage] = useState(1);
     const [totalBooks, setTotalBooks] = useState(0);
-    const [hasMore, setHasMore] = useState(false);
+    const [totalPages, setTotalPages] = useState(1);
 
     // States for real data
     const [categories, setCategories] = useState([]);
@@ -60,20 +60,12 @@ const CategoryDetail = () => {
                 }
 
                 const response = await api.get(`/books?category=${currentCat.id}&page=${currentPage}&limit=10&search=${searchTerm}`);
-                const { books: newBooks, total, totalPages } = response.data;
-                const pageBooks = (newBooks || []).map(book => ({
-                    ...book,
-                    _pageKey: `${book.id}-${currentPage}`
-                }));
+                const { books: newBooks, total, totalPages: tp } = response.data;
 
-                if (currentPage === 1) {
-                    setBooks(newBooks || []);
-                } else {
-                    setBooks(prev => [...prev, ...pageBooks]);
-                }
-
+                setBooks(newBooks || []);
                 setTotalBooks(total || 0);
-                setHasMore(currentPage < totalPages);
+                setTotalPages(tp || 1);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
             } catch (err) {
                 console.error(err);
                 setError('Errore nel caricamento dei libri');
@@ -239,7 +231,7 @@ const CategoryDetail = () => {
                         {books.length > 0 ? (
                             books.map(book => (
                                 <div
-                                    key={book._pageKey || book.id}
+                                    key={book.id}
                                     onClick={() => openBook(book)}
                                     className="bg-white border border-gray-100 rounded-xl overflow-hidden flex space-x-4 p-3 shadow-sm active:scale-[0.98] transition-all cursor-pointer"
                                 >
@@ -291,16 +283,72 @@ const CategoryDetail = () => {
                     </div>
                 )}
 
-                {/* Load More Button */}
-                {hasMore && (
-                    <div className="flex justify-center pt-8 pb-12">
+                {/* Numbered Pagination */}
+                {totalPages > 1 && (
+                    <div className="flex justify-center items-center gap-1.5 pt-4 pb-8">
+                        {/* Prev arrow */}
                         <button
-                            onClick={() => setCurrentPage(prev => prev + 1)}
-                            className="px-8 py-3 bg-secondary text-white rounded-full font-black uppercase text-[10px] tracking-widest hover:bg-secondary/90 transition-all active:scale-95 shadow-lg flex items-center space-x-2"
+                            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                            disabled={currentPage === 1}
+                            className="w-8 h-8 flex items-center justify-center rounded-xl font-black text-[10px] uppercase shadow-sm bg-white text-primary border border-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-all active:scale-95"
                         >
-                            <span>Carica altri ({totalBooks - books.length})</span>
-                            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M19 9l-7 7-7-7" />
+                            <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M15 19l-7-7 7-7" />
+                            </svg>
+                        </button>
+
+                        {/* Page numbers */}
+                        {(() => {
+                            const pages = [];
+                            const maxVisible = 5;
+                            let start = Math.max(1, currentPage - Math.floor(maxVisible / 2));
+                            let end = Math.min(totalPages, start + maxVisible - 1);
+                            if (end - start + 1 < maxVisible) start = Math.max(1, end - maxVisible + 1);
+
+                            if (start > 1) {
+                                pages.push(
+                                    <button key={1} onClick={() => setCurrentPage(1)}
+                                        className="w-8 h-8 flex items-center justify-center rounded-xl font-black text-[10px] uppercase shadow-sm bg-white text-primary border border-gray-100 transition-all active:scale-95">
+                                        1
+                                    </button>
+                                );
+                                if (start > 2) pages.push(<span key="start-ellipsis" className="w-8 h-8 flex items-center justify-center text-[10px] font-black text-primary/40">...</span>);
+                            }
+
+                            for (let i = start; i <= end; i++) {
+                                pages.push(
+                                    <button key={i} onClick={() => setCurrentPage(i)}
+                                        className={`w-8 h-8 flex items-center justify-center rounded-xl font-black text-[10px] uppercase shadow-sm transition-all active:scale-95 ${
+                                            i === currentPage
+                                                ? 'bg-secondary text-white'
+                                                : 'bg-white text-primary border border-gray-100'
+                                        }`}>
+                                        {i}
+                                    </button>
+                                );
+                            }
+
+                            if (end < totalPages) {
+                                if (end < totalPages - 1) pages.push(<span key="end-ellipsis" className="w-8 h-8 flex items-center justify-center text-[10px] font-black text-primary/40">...</span>);
+                                pages.push(
+                                    <button key={totalPages} onClick={() => setCurrentPage(totalPages)}
+                                        className="w-8 h-8 flex items-center justify-center rounded-xl font-black text-[10px] uppercase shadow-sm bg-white text-primary border border-gray-100 transition-all active:scale-95">
+                                        {totalPages}
+                                    </button>
+                                );
+                            }
+
+                            return pages;
+                        })()}
+
+                        {/* Next arrow */}
+                        <button
+                            onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                            disabled={currentPage === totalPages}
+                            className="w-8 h-8 flex items-center justify-center rounded-xl font-black text-[10px] uppercase shadow-sm bg-white text-primary border border-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-all active:scale-95"
+                        >
+                            <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M9 5l7 7-7 7" />
                             </svg>
                         </button>
                     </div>
