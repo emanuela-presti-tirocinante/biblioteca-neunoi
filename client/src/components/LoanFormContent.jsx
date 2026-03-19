@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { DayPicker } from 'react-day-picker';
 import 'react-day-picker/dist/style.css';
+import '../styles/daypicker.css';
 import { it } from 'date-fns/locale';
 import { format } from 'date-fns';
 
@@ -56,7 +57,7 @@ const LoanFormContent = ({ book, onConfirm, onCancel, isLoading, onValidationCha
                         <h3 className="text-primary font-black text-xs uppercase tracking-tight">Periodo del Prestito</h3>
                     </div>
                     
-                    <div className="bg-gray-50 border border-gray-100 rounded-3xl p-4 flex flex-col items-center">
+                    <div className="bg-gray-50 border border-gray-100 rounded-3xl p-3 flex flex-col items-center">
                         <div className="w-full text-center py-2 mb-4 border-b border-gray-200">
                             {startDate && endDate ? (
                                 <p className="text-[10px] font-black text-primary uppercase tracking-widest">
@@ -90,7 +91,7 @@ const LoanFormContent = ({ book, onConfirm, onCancel, isLoading, onValidationCha
                             disabled={{ before: new Date() }}
                             locale={it}
                             classNames={{
-                                day: "text-[10px] transition-all hover:bg-secondary/20 rounded-lg h-9 w-9 p-0 font-normal aria-selected:opacity-100",
+                                day_button: "text-[10px] transition-all hover:bg-secondary/20 rounded-lg h-7 w-7 p-0 font-normal aria-selected:opacity-100",
                                 range_start: "bg-secondary text-white rounded-full font-black",
                                 range_end: "bg-secondary text-white rounded-full font-black",
                                 range_middle: "bg-accent/40 text-primary !rounded-none",
@@ -98,7 +99,13 @@ const LoanFormContent = ({ book, onConfirm, onCancel, isLoading, onValidationCha
                                 today: "text-secondary font-black",
                                 disabled: "text-gray-300 opacity-50 cursor-not-allowed",
                                 caption_label: "text-xs font-black uppercase text-primary tracking-widest",
-                                nav_button: "hover:bg-gray-100 rounded-lg transition-colors",
+                                button_next: "p-1",
+                                button_previous: "p-1",
+                                nav: "flex items-center",
+                                month_caption: "flex items-center justify-between px-2 mb-1",
+                                weekdays: "mb-0",
+                                weekday: "text-[9px] font-black text-gray-400 uppercase pb-1",
+                                week: "mt-0.5",
                             }}
                             className="loan-day-picker"
                         />
