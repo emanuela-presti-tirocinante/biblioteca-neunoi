@@ -233,10 +233,10 @@ const CategoryDetail = () => {
                                 <div
                                     key={book.id}
                                     onClick={() => openBook(book)}
-                                    className="bg-white border border-gray-100 rounded-xl overflow-hidden flex space-x-4 p-3 shadow-sm active:scale-[0.98] transition-all cursor-pointer"
+                                    className="bg-white border border-gray-100 rounded-xl overflow-hidden flex space-x-4 p-2.5 shadow-sm active:scale-[0.98] transition-all cursor-pointer"
                                 >
                                     {/* Image Section (Left) */}
-                                    <div className="w-24 h-36 flex-shrink-0 overflow-hidden bg-gray-100 rounded-lg">
+                                    <div className="w-20 h-28 flex-shrink-0 overflow-hidden bg-gray-100 rounded-lg">
                                         <img
                                             src={book.copertina_url || "/book-placeholder.svg"}
                                             alt={book.titolo}
@@ -247,10 +247,10 @@ const CategoryDetail = () => {
                                     {/* Text Section (Right) */}
                                     <div className="flex-grow flex flex-col justify-between py-1">
                                         <div className="space-y-1">
-                                            <h3 className="text-xs font-black uppercase text-primary leading-tight">
+                                            <h3 className="text-[11px] font-black uppercase text-primary leading-tight">
                                                 {book.titolo}
                                             </h3>
-                                            <p className="text-[10px] text-gray-500 font-bold uppercase">
+                                            <p className="text-[9px] text-gray-500 font-bold uppercase">
                                                 {book.autore}
                                             </p>
                                             <div className="flex flex-col space-y-0.5 pt-1">
@@ -386,13 +386,13 @@ const CategoryDetail = () => {
                             <img
                                 src={selectedBook.copertina_url || "/book-placeholder.svg"}
                                 alt={selectedBook.titolo}
-                                className="w-48 h-64 object-cover rounded-md shadow-lg mb-4"
+                                className="w-36 h-48 object-cover rounded-md shadow-lg mb-4"
                             />
                             <div className="text-center space-y-1">
-                                <h3 className="text-lg font-black text-primary uppercase leading-tight">{selectedBook.titolo}</h3>
-                                <p className="text-sm font-bold text-gray-500 uppercase">{selectedBook.autore} ({selectedBook.anno_pubblicazione || 'N/D'})</p>
+                                <h3 className="text-base font-black text-primary uppercase leading-tight">{selectedBook.titolo}</h3>
+                                <p className="text-xs font-bold text-gray-500 uppercase">{selectedBook.autore} ({selectedBook.anno_pubblicazione || 'N/D'})</p>
                                 {selectedBook.editore && (
-                                    <p className="text-sm text-gray-400 font-medium">{selectedBook.editore}</p>
+                                    <p className="text-xs text-gray-400 font-medium">{selectedBook.editore}</p>
                                 )}
                             </div>
                         </div>
@@ -417,7 +417,7 @@ const CategoryDetail = () => {
                         <div className="mt-8 pt-4">
                             <button
                                 onClick={(e) => handleLoanRequest(e, selectedBook)}
-                                className="w-full bg-accent text-primary py-4 rounded-xl font-black uppercase tracking-wider shadow-md active:scale-[0.98] transition-all"
+                                className="w-full bg-accent text-primary py-3 rounded-xl font-black uppercase tracking-wider shadow-md active:scale-[0.98] transition-all"
                             >
                                 Richiedi Prestito
                             </button>
