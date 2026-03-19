@@ -1,14 +1,33 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
 const { User } = require('../models');
 
 const router = express.Router();
 
+// Multer config per documenti utente
+const documentiDir = path.join(__dirname, '../uploads/documenti');
+if (!fs.existsSync(documentiDir)) {
+    fs.mkdirSync(documentiDir, { recursive: true });
+}
+
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => cb(null, documentiDir),
+    filename: (req, file, cb) => {
+        const uniqueName = `${Date.now()}_${file.originalname}`;
+        cb(null, uniqueName);
+    }
+});
+
+const upload = multer({ storage });
+
 // Register
-router.post('/register', async (req, res) => {
+router.post('/register', upload.single('documento'), async (req, res) => {
     try {
-        const { nome, cognome, email, password } = req.body;
+        const { nome, cognome, email, password, telefono, tipo_documento, numero_documento } = req.body;
 
         // Check if user exists
         const existingUser = await User.findOne({ where: { email } });
@@ -20,13 +39,20 @@ router.post('/register', async (req, res) => {
         const salt = await bcrypt.genSalt(10);
         const password_hash = await bcrypt.hash(password, salt);
 
+        // Percorso file documento (se caricato)
+        const documento_path = req.file ? req.file.path : null;
+
         // Create user
         const user = await User.create({
             nome,
             cognome,
             email,
             password_hash,
-            role: 'user'
+            role: 'user',
+            telefono: telefono || null,
+            tipo_documento: tipo_documento || null,
+            numero_documento: numero_documento || null,
+            documento_path: documento_path || null
         });
 
         // Send Welcome Email

@@ -35,6 +35,22 @@ const User = sequelize.define('User', {
         type: DataTypes.DATE,
         allowNull: true
     },
+    telefono: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
+    tipo_documento: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
+    numero_documento: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
+    documento_path: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
     createdAt: {
         type: DataTypes.DATE,
         allowNull: false,

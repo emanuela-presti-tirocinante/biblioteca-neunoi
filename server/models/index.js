@@ -29,6 +29,9 @@ Review.belongsTo(User, { foreignKey: 'userId' });
 Book.hasMany(Review, { foreignKey: 'bookId' });
 Review.belongsTo(Book, { foreignKey: 'bookId' });
 
+// Sync DB schema (adds missing columns without data loss)
+sequelize.sync({ alter: true });
+
 module.exports = {
     sequelize,
     Sequelize,
