@@ -20,7 +20,7 @@ const syncDB = async () => {
     await sequelize.query('PRAGMA foreign_keys = OFF;');
     await sequelize.sync({});
     await sequelize.query('PRAGMA foreign_keys = ON;');
-    console.log('Database synchronized with { alter: true } (Foreign keys toggled for sync)');
+    console.log('Database synchronized');
   } catch (err) {
     console.error('Database synchronization error:', err);
   }
