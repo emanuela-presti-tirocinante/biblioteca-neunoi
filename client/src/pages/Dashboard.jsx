@@ -165,11 +165,7 @@ const Dashboard = () => {
                 >
                     <MessageCircle size={12} className={activeTab === 'recensioni' ? 'text-white' : 'text-gray-400'} />
                     Recensioni
-                    {reviews.length > 0 && (
-                        <span className="absolute top-0 right-0 translate-x-1/2 -translate-y-1/2 bg-secondary text-white text-[9px] font-black w-4 h-4 flex items-center justify-center rounded-full shadow-sm border border-white z-10">
-                            {reviews.filter(r => r.approvata).length}
-                        </span>
-                    )}
+                    <Badge count={reviews.filter(r => r.approvata).length} active={activeTab === 'recensioni'} />
                 </button>
             </div>
 
