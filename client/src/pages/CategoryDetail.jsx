@@ -3,6 +3,10 @@ import { useState, useEffect, useRef } from 'react';
 import api from '../utils/api';
 import { useAuth } from '../context/AuthContext';
 import LoanRequestModal from '../components/LoanRequestModal';
+import { MessageCircle } from 'lucide-react';
+import ReviewModal from '../components/ReviewModal';
+
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
 
 const CategoryDetail = () => {
     const { id } = useParams(); // 'id' here is the category name from encodeURIComponent
@@ -17,6 +21,13 @@ const CategoryDetail = () => {
     const [isSheetOpen, setIsSheetOpen] = useState(false);
     const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
+
+    // Review states
+    const [reviewCounts, setReviewCounts] = useState({});
+    const [selectedBookReviews, setSelectedBookReviews] = useState([]);
+    const [showAllReviews, setShowAllReviews] = useState(false);
+    const [reviewModalOpen, setReviewModalOpen] = useState(false);
+    const [reviewTargetBook, setReviewTargetBook] = useState(null);
 
     // Pagination states
     const [currentPage, setCurrentPage] = useState(1);
@@ -82,6 +93,68 @@ const CategoryDetail = () => {
         setCurrentPage(1);
         setBooks([]);
     }, [categoryName, searchTerm]);
+
+    // Fetch review counts for the current list of books
+    useEffect(() => {
+        const fetchReviewCounts = async () => {
+            if (books.length === 0) {
+                setReviewCounts({});
+                return;
+            }
+            try {
+                const counts = {};
+                await Promise.all(
+                    books.map(async (book) => {
+                        try {
+                            const res = await fetch(`${BASE_URL}/reviews/book/${book.id}`);
+                            if (res.ok) {
+                                const data = await res.json();
+                                counts[book.id] = data.length;
+                            } else {
+                                counts[book.id] = 0;
+                            }
+                        } catch (err) {
+                            console.error(`Errore fetch recensioni libro ${book.id}:`, err);
+                            counts[book.id] = 0;
+                        }
+                    })
+                );
+                setReviewCounts(counts);
+            } catch (err) {
+                console.error("Errore generico in fetchReviewCounts:", err);
+            }
+        };
+
+        fetchReviewCounts();
+    }, [books]);
+
+    // Fetch reviews for the selected book in the bottom sheet
+    useEffect(() => {
+        if (!selectedBook) {
+            setSelectedBookReviews([]);
+            setShowAllReviews(false);
+            return;
+        }
+
+        const fetchSelectedBookReviews = async () => {
+            try {
+                const res = await fetch(`${BASE_URL}/reviews/book/${selectedBook.id}`);
+                if (res.ok) {
+                    const data = await res.json();
+                    setSelectedBookReviews(data);
+                } else {
+                    setSelectedBookReviews([]);
+                }
+            } catch (err) {
+                console.error(`Errore fetch recensioni per selectedBook ${selectedBook.id}:`, err);
+                setSelectedBookReviews([]);
+            } finally {
+                setShowAllReviews(false);
+            }
+        };
+
+        fetchSelectedBookReviews();
+    }, [selectedBook]);
 
     // Filtering is now handled by server side search parameter
     // const filteredBooks = books.filter(book => {
@@ -253,6 +326,22 @@ const CategoryDetail = () => {
                                             <p className="text-[9px] text-gray-500 font-bold uppercase">
                                                 {book.autore}
                                             </p>
+                                            <div className="flex items-center mt-1">
+                                                <MessageCircle size={12} className="text-secondary mr-1" />
+                                                <span className="text-[9px] font-black text-secondary">
+                                                    {reviewCounts[book.id] ?? 0} RECENSIONI
+                                                </span>
+                                                <button
+                                                    className="ml-2 text-[9px] font-black uppercase text-primary border border-primary rounded-xl px-2 py-0.5"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        setReviewTargetBook(book);
+                                                        setReviewModalOpen(true);
+                                                    }}
+                                                >
+                                                    RECENSISCI
+                                                </button>
+                                            </div>
                                             <div className="flex flex-col space-y-0.5 pt-1">
                                                 <p className="text-[9px] text-gray-400">
                                                     <span className="font-bold uppercase">Anno:</span> {book.anno_pubblicazione || 'N/D'}
@@ -394,7 +483,57 @@ const CategoryDetail = () => {
                                 {selectedBook.editore && (
                                     <p className="text-xs text-gray-400 font-medium">{selectedBook.editore}</p>
                                 )}
+                                <div className="flex items-center gap-1 justify-center mt-3">
+                                    <MessageCircle size={14} className="text-secondary" />
+                                    <span className="text-xs font-black text-secondary uppercase">
+                                        {selectedBookReviews.length} recensioni
+                                    </span>
+                                </div>
+                                <button
+                                    onClick={() => {
+                                        setReviewTargetBook(selectedBook);
+                                        setReviewModalOpen(true);
+                                    }}
+                                    className="mt-2 px-4 py-2 rounded-2xl bg-secondary text-white text-[11px] font-black uppercase tracking-widest shadow-sm mx-auto block"
+                                >
+                                    Scrivi una recensione
+                                </button>
                             </div>
+                        </div>
+
+                        {/* Reviews List */}
+                        <div className="mb-6">
+                            {selectedBookReviews.length === 0 ? (
+                                <p className="mt-3 text-xs text-gray-400 font-bold text-center">
+                                    Ancora nessuna recensione
+                                </p>
+                            ) : (
+                                <div className="mt-4">
+                                    {(showAllReviews ? selectedBookReviews : selectedBookReviews.slice(0, 5)).map(review => (
+                                        <div key={review.id} className="border-b border-gray-100 pb-2 mb-2">
+                                            <div className="flex justify-between items-baseline">
+                                                <span className="text-[10px] font-black text-primary uppercase">
+                                                    {review.nome_display || "Anonimo"}
+                                                </span>
+                                                <span className="text-[9px] text-gray-400 font-bold">
+                                                    {new Date(review.createdAt).toLocaleDateString('it-IT', { day: '2-digit', month: 'long', year: 'numeric' })}
+                                                </span>
+                                            </div>
+                                            <p className="text-xs text-gray-600 font-medium mt-0.5">
+                                                {review.commento}
+                                            </p>
+                                        </div>
+                                    ))}
+                                    {selectedBookReviews.length > 5 && !showAllReviews && (
+                                        <button
+                                            onClick={() => setShowAllReviews(true)}
+                                            className="mt-1 text-[10px] font-black text-secondary uppercase block w-full text-center"
+                                        >
+                                            Mostra tutte
+                                        </button>
+                                    )}
+                                </div>
+                            )}
                         </div>
 
                         <div className="space-y-4 text-xs font-medium text-gray-700">
@@ -436,6 +575,14 @@ const CategoryDetail = () => {
                 }}
                 onConfirm={handleConfirmLoan}
                 isLoading={isSubmitting}
+            />
+
+            {/* Review Modal */}
+            <ReviewModal
+                isOpen={reviewModalOpen}
+                onClose={() => setReviewModalOpen(false)}
+                bookId={reviewTargetBook?.id}
+                bookTitle={reviewTargetBook?.titolo}
             />
         </div>
     );
