@@ -69,4 +69,18 @@ router.delete('/:reviewId', auth, adminParams, async (req, res) => {
   }
 });
 
+// GET recensioni dell'utente loggato
+router.get('/user/me', auth, async (req, res) => {
+  try {
+    const reviews = await Review.findAll({
+      where: { userId: req.user.id },
+      include: [{ model: Book, attributes: ['titolo', 'copertina_url'] }],
+      order: [['createdAt', 'DESC']]
+    });
+    res.json(reviews);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 module.exports = router;

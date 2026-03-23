@@ -7,6 +7,7 @@ const Profile = () => {
     const { user } = useAuth();
     const navigate = useNavigate();
     const [profileData, setProfileData] = useState(null);
+    const [numRecensioni, setNumRecensioni] = useState(0);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -20,7 +21,18 @@ const Profile = () => {
                 setLoading(false);
             }
         };
+
+        const fetchReviewsCount = async () => {
+            try {
+                const res = await api.get('/reviews/user/me');
+                setNumRecensioni(res.data.length);
+            } catch (err) {
+                console.error("Error fetching reviews count", err);
+            }
+        };
+
         fetchProfile();
+        fetchReviewsCount();
     }, []);
 
     const formatDate = (dateString) => {
@@ -133,7 +145,7 @@ const Profile = () => {
                             <span className="text-[8px] font-black text-gray-400 uppercase tracking-tighter">Libri restituiti</span>
                         </div>
                         <div className="flex flex-col items-center col-span-2 pt-4">
-                            <span className="text-2xl font-black text-primary">{stats?.recensioni || 0}</span>
+                            <span className="text-2xl font-black text-primary">{numRecensioni}</span>
                             <span className="text-[8px] font-black text-gray-400 uppercase tracking-tighter">Recensioni</span>
                         </div>
                     </div>

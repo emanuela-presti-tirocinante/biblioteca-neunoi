@@ -1,16 +1,46 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../utils/api';
+import { MessageCircle } from 'lucide-react';
+
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
 
 const Dashboard = () => {
     const navigate = useNavigate();
     const [loans, setLoans] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [activeTab, setActiveTab] = useState('in_corso'); // 'in_corso', 'in_attesa', 'storico'
+    const [activeTab, setActiveTab] = useState('in_corso'); // 'in_corso', 'in_attesa', 'storico', 'recensioni'
+    const [reviews, setReviews] = useState([]);
+    const [loadingReviews, setLoadingReviews] = useState(false);
 
     useEffect(() => {
         fetchLoans();
+        fetchReviews();
     }, []);
+
+    const fetchReviews = async () => {
+        setLoadingReviews(true);
+        try {
+            const token = localStorage.getItem('token');
+            if (!token) return;
+            const res = await fetch(`${BASE_URL}/reviews/user/me`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            if (res.ok) {
+                const data = await res.json();
+                setReviews(data);
+            } else {
+                setReviews([]);
+            }
+        } catch (err) {
+            console.error("Error fetching reviews", err);
+            setReviews([]);
+        } finally {
+            setLoadingReviews(false);
+        }
+    };
 
     const fetchLoans = async () => {
         setLoading(true);
@@ -126,11 +156,26 @@ const Dashboard = () => {
                     Storico
                     <Badge count={storicoLoans.length} active={activeTab === 'storico'} />
                 </button>
+                <button
+                    onClick={() => setActiveTab('recensioni')}
+                    className={`flex-1 relative overflow-visible py-2.5 px-4 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all whitespace-nowrap flex items-center justify-center gap-1
+                        ${activeTab === 'recensioni'
+                            ? 'bg-secondary text-white shadow-md'
+                            : 'bg-[#F5F5F5] text-gray-500 hover:bg-gray-200'}`}
+                >
+                    <MessageCircle size={12} className={activeTab === 'recensioni' ? 'text-white' : 'text-gray-400'} />
+                    Recensioni
+                    {reviews.length > 0 && (
+                        <span className="absolute top-0 right-0 translate-x-1/2 -translate-y-1/2 bg-secondary text-white text-[9px] font-black w-4 h-4 flex items-center justify-center rounded-full shadow-sm border border-white z-10">
+                            {reviews.filter(r => r.approvata).length}
+                        </span>
+                    )}
+                </button>
             </div>
 
             <div className="px-6 py-8 flex flex-col space-y-6">
                 {/* Loans List */}
-                <div className="flex flex-col space-y-4">
+                <div className={`flex flex-col space-y-4 ${activeTab === 'recensioni' ? 'hidden' : 'flex'}`}>
                     {filteredLoans.length > 0 ? (
                         filteredLoans.map(loan => (
                             <div key={loan.id} className="bg-white border border-gray-100 rounded-2xl overflow-hidden flex p-4 shadow-sm hover:shadow-md transition-shadow">
@@ -210,6 +255,48 @@ const Dashboard = () => {
                         </div>
                     )}
                 </div>
+
+                {/* Reviews List */}
+                {activeTab === 'recensioni' && !loadingReviews && (
+                    <div className="flex flex-col space-y-4 pb-8">
+                        {reviews.length > 0 ? (
+                            reviews.map(review => (
+                                <div key={review.id} className="bg-white border border-gray-100 rounded-2xl overflow-hidden flex p-4 shadow-sm hover:shadow-md transition-shadow flex-col">
+                                    <div className="flex justify-between items-start mb-2">
+                                        <div className="space-y-1">
+                                            <h3 className="text-xs font-black uppercase text-primary leading-tight">
+                                                {review.Book?.titolo || "Libro Sconosciuto"}
+                                            </h3>
+                                            <p className="text-[9px] text-gray-400 font-bold uppercase">
+                                                Inviata il {new Date(review.createdAt).toLocaleDateString('it-IT', { day: '2-digit', month: 'long', year: 'numeric' })} da {review.nome_display || "Anonimo"}
+                                            </p>
+                                        </div>
+                                        <div className="flex items-center space-x-1 whitespace-nowrap">
+                                            <div className={`w-1.5 h-1.5 rounded-full ${review.approvata ? 'bg-green-500' : 'bg-yellow-500'}`} />
+                                            <span className={`text-[9px] font-black uppercase tracking-wider ${review.approvata ? 'text-green-600' : 'text-yellow-600'}`}>
+                                                {review.approvata ? 'Approvata' : 'In attesa'}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div className="bg-gray-50 p-3 rounded-xl border border-gray-100 mt-2">
+                                        <p className="text-xs text-gray-600 font-medium leading-relaxed italic">
+                                            "{review.commento}"
+                                        </p>
+                                    </div>
+                                </div>
+                            ))
+                        ) : (
+                            <div className="flex flex-col items-center justify-center py-16 bg-white rounded-3xl border border-dashed border-gray-200 px-10 text-center">
+                                <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4">
+                                    <MessageCircle className="w-8 h-8 text-gray-300" />
+                                </div>
+                                <p className="text-xs font-black text-gray-400 uppercase tracking-widest leading-loose">
+                                    Non hai ancora scritto recensioni
+                                </p>
+                            </div>
+                        )}
+                    </div>
+                )}
 
                 {/* Explore Catalog Button */}
                 <div className="pt-4">
