@@ -5,12 +5,15 @@ import { useNavigate, Link } from 'react-router-dom';
 const Registration = () => {
     const [nome, setNome] = useState('');
     const [cognome, setCognome] = useState('');
+    const [telefono, setTelefono] = useState('');
+    const [tipoDocumento, setTipoDocumento] = useState('');
+    const [numeroDocumento, setNumeroDocumento] = useState('');
+    const [documento, setDocumento] = useState(null);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState('');
-    const { register } = useAuth();
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
@@ -22,10 +25,27 @@ const Registration = () => {
         }
 
         try {
-            await register(nome, cognome, email, password);
+            const formData = new FormData();
+            formData.append('nome', nome);
+            formData.append('cognome', cognome);
+            formData.append('email', email);
+            formData.append('password', password);
+            if (telefono) formData.append('telefono', telefono);
+            if (tipoDocumento) formData.append('tipo_documento', tipoDocumento);
+            if (numeroDocumento) formData.append('numero_documento', numeroDocumento);
+            if (documento) formData.append('documento', documento);
+
+            const res = await fetch('http://localhost:5001/api/auth/register', {
+                method: 'POST',
+                body: formData,
+            });
+
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.message || 'Registrazione fallita');
+
             navigate('/');
         } catch (err) {
-            setError(err.response?.data?.message || 'Registrazione fallita');
+            setError(err.message || 'Registrazione fallita');
         }
     };
 
@@ -80,6 +100,82 @@ const Registration = () => {
                                 />
                                 <span className="text-gray-400 font-light text-2xl absolute right-0 leading-none">]</span>
                             </div>
+                        </div>
+
+                        {/* Telefono Field */}
+                        <div className="flex flex-col items-center space-y-3">
+                            <label className="text-primary font-black text-sm uppercase tracking-wide w-full text-center">
+                                Telefono
+                            </label>
+                            <div className="relative w-full max-w-[240px] flex items-center">
+                                <span className="text-gray-400 font-light text-2xl absolute left-0 leading-none">[</span>
+                                <input
+                                    type="tel"
+                                    value={telefono}
+                                    onChange={(e) => setTelefono(e.target.value)}
+                                    className="w-full text-center bg-transparent border-b border-gray-400 px-4 py-1 text-sm focus:outline-none focus:border-primary transition-colors text-gray-700 font-medium"
+                                />
+                                <span className="text-gray-400 font-light text-2xl absolute right-0 leading-none">]</span>
+                            </div>
+                        </div>
+
+                        {/* Tipo Documento Field */}
+                        <div className="flex flex-col items-center space-y-3">
+                            <label className="text-primary font-black text-sm uppercase tracking-wide w-full text-center">
+                                Tipo Documento
+                            </label>
+                            <div className="relative w-full max-w-[240px] flex items-center">
+                                <span className="text-gray-400 font-light text-2xl absolute left-0 leading-none">[</span>
+                                <select
+                                    value={tipoDocumento}
+                                    onChange={(e) => setTipoDocumento(e.target.value)}
+                                    className="w-full text-center bg-transparent border-b border-gray-400 px-4 py-1 text-sm focus:outline-none focus:border-primary transition-colors text-gray-700 font-medium appearance-none"
+                                >
+                                    <option value=""></option>
+                                    <option value="Carta d'Identità">Carta d'Identità</option>
+                                    <option value="Patente">Patente</option>
+                                    <option value="Passaporto">Passaporto</option>
+                                </select>
+                                <span className="text-gray-400 font-light text-2xl absolute right-0 leading-none">]</span>
+                            </div>
+                        </div>
+
+                        {/* Numero Documento Field */}
+                        <div className="flex flex-col items-center space-y-3">
+                            <label className="text-primary font-black text-sm uppercase tracking-wide w-full text-center">
+                                Numero Documento
+                            </label>
+                            <div className="relative w-full max-w-[240px] flex items-center">
+                                <span className="text-gray-400 font-light text-2xl absolute left-0 leading-none">[</span>
+                                <input
+                                    type="text"
+                                    value={numeroDocumento}
+                                    onChange={(e) => setNumeroDocumento(e.target.value)}
+                                    className="w-full text-center bg-transparent border-b border-gray-400 px-4 py-1 text-sm focus:outline-none focus:border-primary transition-colors text-gray-700 font-medium"
+                                />
+                                <span className="text-gray-400 font-light text-2xl absolute right-0 leading-none">]</span>
+                            </div>
+                        </div>
+
+                        {/* Upload Documento Field */}
+                        <div className="flex flex-col items-center space-y-3">
+                            <label className="text-primary font-black text-sm uppercase tracking-wide w-full text-center">
+                                Documento
+                            </label>
+                            <label className="cursor-pointer flex flex-col items-center space-y-1">
+                                <span className="bg-accent text-primary font-black text-xs uppercase tracking-widest px-4 py-2 rounded-lg shadow-sm hover:shadow-md active:scale-[0.98] transition-all">
+                                    Scegli file
+                                </span>
+                                <span className="text-gray-400 text-[11px] font-medium">
+                                    {documento ? documento.name : 'Nessun file selezionato'}
+                                </span>
+                                <input
+                                    type="file"
+                                    accept=".pdf,.jpg,.jpeg,.png"
+                                    onChange={(e) => setDocumento(e.target.files[0] || null)}
+                                    className="hidden"
+                                />
+                            </label>
                         </div>
 
                         {/* Email Field */}
