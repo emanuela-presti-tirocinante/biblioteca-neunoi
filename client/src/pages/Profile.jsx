@@ -82,6 +82,18 @@ const Profile = () => {
                             <p className="font-bold text-gray-700 text-sm truncate">{userData?.email}</p>
                         </div>
                         <div className="flex flex-col">
+                            <span className="text-[9px] font-black text-secondary uppercase tracking-tighter">Telefono</span>
+                            <p className="font-bold text-gray-700">{userData?.telefono || "Non inserito"}</p>
+                        </div>
+                        <div className="flex flex-col">
+                            <span className="text-[9px] font-black text-secondary uppercase tracking-tighter">Tipo Documento</span>
+                            <p className="font-bold text-gray-700">{userData?.tipo_documento || "Non inserito"}</p>
+                        </div>
+                        <div className="flex flex-col col-span-2">
+                            <span className="text-[9px] font-black text-secondary uppercase tracking-tighter">Numero Documento</span>
+                            <p className="font-bold text-gray-700">{userData?.numero_documento || "Non inserito"}</p>
+                        </div>
+                        <div className="flex flex-col">
                             <span className="text-[9px] font-black text-secondary uppercase tracking-tighter">Ruolo</span>
                             <span className="inline-block bg-accent px-2 py-0.5 rounded text-[10px] font-black text-primary uppercase w-fit">{userData?.role}</span>
                         </div>
