@@ -14,6 +14,7 @@ import AdminBookForm from './pages/AdminBookForm';
 import AdminCategoryForm from './pages/AdminCategoryForm';
 import Profile from './pages/Profile';
 import EditProfile from './pages/EditProfile';
+import ResetPassword from './pages/ResetPassword';
 
 function App() {
     return (
@@ -25,6 +26,7 @@ function App() {
                     <Route path="/login" element={<Login />} />
                     <Route path="/register" element={<Registration />} />
                     <Route path="/forgot-password" element={<ForgotPassword />} />
+                    <Route path="/reset-password" element={<ResetPassword />} />
                     <Route path="/search" element={<SearchResults />} />
 
                     {/* Protected User Routes */}
