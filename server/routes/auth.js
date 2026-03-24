@@ -169,4 +169,40 @@ router.post('/forgot-password', async (req, res) => {
     }
 });
 
+// Reset Password
+router.post('/reset-password', async (req, res) => {
+    try {
+        const { token, newPassword } = req.body;
+
+        if (!token || !newPassword) {
+            return res.status(400).json({ message: 'Token e nuova password richiesti' });
+        }
+
+        let decoded;
+        try {
+            decoded = jwt.verify(token, process.env.JWT_SECRET);
+        } catch (err) {
+            return res.status(400).json({ message: 'Token non valido o scaduto' });
+        }
+
+        if (decoded.purpose !== 'reset-password') {
+            return res.status(400).json({ message: 'Token non valido per questa operazione' });
+        }
+
+        const user = await User.findByPk(decoded.id);
+        if (!user) {
+            return res.status(400).json({ message: 'Utente non trovato' });
+        }
+
+        const salt = await bcrypt.genSalt(10);
+        user.password_hash = await bcrypt.hash(newPassword, salt);
+        await user.save();
+
+        res.status(200).json({ message: 'Password aggiornata con successo' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Errore del server' });
+    }
+});
+
 module.exports = router;
