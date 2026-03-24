@@ -83,4 +83,17 @@ router.get('/user/me', auth, async (req, res) => {
   }
 });
 
+// GET recensioni in attesa di approvazione (solo admin)
+router.get('/pending', auth, adminParams, async (req, res) => {
+  try {
+    const reviews = await Review.findAll({
+      where: { approvata: false },
+      order: [['createdAt', 'DESC']]
+    });
+    res.json(reviews);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 module.exports = router;
