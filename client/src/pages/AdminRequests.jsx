@@ -1,12 +1,16 @@
 import { useState, useEffect } from 'react';
 import api from '../utils/api';
 
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
+
 const AdminRequests = () => {
     const [activeTab, setActiveTab] = useState('pending'); // 'pending', 'active', 'history'
     const [loans, setLoans] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
     const [expandedCardId, setExpandedCardId] = useState(null);
+    const [reviews, setReviews] = useState([]);
+    const [isLoadingReviews, setIsLoadingReviews] = useState(false);
 
     const toggleExpand = (id) => {
         setExpandedCardId(expandedCardId === id ? null : id);
@@ -47,6 +51,7 @@ const AdminRequests = () => {
 
     useEffect(() => {
         fetchLoans();
+        fetchReviews();
     }, []);
 
     const fetchLoans = async () => {
@@ -63,10 +68,56 @@ const AdminRequests = () => {
         }
     };
 
+    const fetchReviews = async () => {
+        setIsLoadingReviews(true);
+        try {
+            const response = await fetch(`${BASE_URL}/reviews/pending`, {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
+            });
+            const data = await response.json();
+            setReviews(data);
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setIsLoadingReviews(false);
+        }
+    };
+
+    const handleApproveReview = async (reviewId) => {
+        try {
+            await fetch(`${BASE_URL}/reviews/${reviewId}/approva`, {
+                method: 'PATCH',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
+            });
+            fetchReviews();
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    const handleDeleteReview = async (reviewId) => {
+        try {
+            await fetch(`${BASE_URL}/reviews/${reviewId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
+            });
+            fetchReviews();
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
     // Filters based on state
     const pendingRequests = loans.filter(l => l.stato === 'richiesto');
     const activeLoans = loans.filter(l => l.stato === 'approvato');
     const historyLoans = loans.filter(l => ['rifiutato', 'restituito', 'scaduto'].includes(l.stato));
+    const pendingReviews = reviews.filter(r => !r.approvata);
 
     const renderTabContent = () => {
         if (isLoading) {
@@ -389,6 +440,71 @@ const AdminRequests = () => {
                     )}
                 </div>
             );
+            case 'reviews':
+                return (
+                    <div className="space-y-4">
+                        <div className="flex items-center mb-6">
+                            <div className="h-6 w-1 bg-secondary rounded-full mr-3"></div>
+                            <h2 className="text-primary font-black text-sm uppercase tracking-tight flex items-center">
+                                RECENSIONI IN ATTESA
+                                <Badge count={pendingReviews.length} active={false} isHeader={true} />
+                            </h2>
+                        </div>
+                        {isLoadingReviews ? (
+                            <div className="flex flex-col items-center justify-center py-20 space-y-4">
+                                <div className="w-10 h-10 border-4 border-accent border-t-secondary rounded-full animate-spin"></div>
+                                <p className="text-xs font-black text-primary uppercase tracking-widest animate-pulse">Caricamento...</p>
+                            </div>
+                        ) : pendingReviews.length === 0 ? (
+                            <p className="text-[10px] text-gray-400 font-bold uppercase italic py-8 bg-gray-50 rounded-xl border border-dashed border-gray-200 text-center">
+                                Nessuna recensione in attesa
+                            </p>
+                        ) : (
+                            <div className="space-y-4">
+                                {pendingReviews.map(review => (
+                                    <div
+                                        key={review.id}
+                                        className="bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden"
+                                    >
+                                        <div className="p-5 space-y-3">
+                                            <div className="flex items-center space-x-2">
+                                                <span className="text-[10px] font-black text-secondary uppercase bg-accent px-2 py-0.5 rounded">
+                                                    IN ATTESA
+                                                </span>
+                                                <h3 className="text-xs font-black uppercase text-primary tracking-tight">
+                                                    {review.nome_display || 'Anonimo'}
+                                                </h3>
+                                            </div>
+                                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                                                Libro ID: {review.bookId}
+                                            </p>
+                                            <p className="text-xs text-gray-600 font-medium bg-gray-50 rounded-xl p-3 border border-gray-100">
+                                                {review.commento || <span className="italic text-gray-400">Nessun commento</span>}
+                                            </p>
+                                            <p className="text-[9px] text-gray-400 font-bold uppercase">
+                                                Inviata il: {new Date(review.createdAt).toLocaleDateString('it-IT', { day: '2-digit', month: 'long', year: 'numeric' })}
+                                            </p>
+                                            <div className="flex space-x-3 pt-2 border-t border-gray-100">
+                                                <button
+                                                    onClick={() => handleApproveReview(review.id)}
+                                                    className="flex-grow bg-green-500 text-white py-3 rounded-xl font-black uppercase text-[10px] tracking-widest shadow-md active:scale-95 transition-all hover:bg-green-600"
+                                                >
+                                                    APPROVA
+                                                </button>
+                                                <button
+                                                    onClick={() => handleDeleteReview(review.id)}
+                                                    className="flex-grow bg-red-500 text-white py-3 rounded-xl font-black uppercase text-[10px] tracking-widest shadow-md active:scale-95 transition-all hover:bg-red-600"
+                                                >
+                                                    ELIMINA
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                );
             default:
                 return null;
         }
@@ -433,6 +549,16 @@ const AdminRequests = () => {
                 >
                     STORICO
                     <Badge count={historyLoans.length} active={activeTab === 'history'} />
+                </button>
+                <button
+                    onClick={() => { setActiveTab('reviews'); setExpandedCardId(null); }}
+                    className={`flex-1 relative overflow-visible px-2 py-3 rounded-[20px] text-[10px] font-black uppercase tracking-wider transition-all
+                        ${activeTab === 'reviews'
+                            ? 'bg-secondary text-white shadow-[0_2px_8px_-2px_rgba(226,31,29,0.3)]'
+                            : 'bg-[#F5F5F5] text-gray-600 hover:bg-gray-200'}`}
+                >
+                    RECENSIONI
+                    <Badge count={pendingReviews.length} active={activeTab === 'reviews'} />
                 </button>
             </div>
 
