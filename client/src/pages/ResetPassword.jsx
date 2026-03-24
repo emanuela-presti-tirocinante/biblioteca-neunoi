@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import api from '../utils/api';
+import PasswordInput from '../components/PasswordInput';
 
 const ResetPassword = () => {
     const [newPassword, setNewPassword] = useState('');
@@ -73,40 +74,22 @@ const ResetPassword = () => {
 
                     <form onSubmit={handleSubmit} className="flex flex-col space-y-8">
                         {/* New Password Field */}
-                        <div className="flex flex-col items-center space-y-3">
-                            <label className="text-primary font-black text-sm uppercase tracking-wide">
-                                NUOVA PASSWORD
-                            </label>
-                            <div className="relative w-full max-w-[240px] flex items-center">
-                                <span className="text-gray-400 font-light text-2xl absolute left-0 leading-none">[</span>
-                                <input
-                                    type="password"
-                                    value={newPassword}
-                                    onChange={(e) => setNewPassword(e.target.value)}
-                                    required
-                                    className="w-full text-center bg-transparent border-b border-gray-400 px-4 py-1 text-sm focus:outline-none focus:border-primary transition-colors text-gray-700 font-medium"
-                                />
-                                <span className="text-gray-400 font-light text-2xl absolute right-0 leading-none">]</span>
-                            </div>
-                        </div>
+                        <PasswordInput
+                            label="Nuova Password"
+                            name="newPassword"
+                            value={newPassword}
+                            onChange={(e) => setNewPassword(e.target.value)}
+                            required
+                        />
 
                         {/* Confirm Password Field */}
-                        <div className="flex flex-col items-center space-y-3">
-                            <label className="text-primary font-black text-sm uppercase tracking-wide">
-                                CONFERMA PASSWORD
-                            </label>
-                            <div className="relative w-full max-w-[240px] flex items-center">
-                                <span className="text-gray-400 font-light text-2xl absolute left-0 leading-none">[</span>
-                                <input
-                                    type="password"
-                                    value={confirmPassword}
-                                    onChange={(e) => setConfirmPassword(e.target.value)}
-                                    required
-                                    className="w-full text-center bg-transparent border-b border-gray-400 px-4 py-1 text-sm focus:outline-none focus:border-primary transition-colors text-gray-700 font-medium"
-                                />
-                                <span className="text-gray-400 font-light text-2xl absolute right-0 leading-none">]</span>
-                            </div>
-                        </div>
+                        <PasswordInput
+                            label="Conferma Password"
+                            name="confirmPassword"
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
+                            required
+                        />
 
                         {/* Submit Button */}
                         <div className="flex justify-center">
