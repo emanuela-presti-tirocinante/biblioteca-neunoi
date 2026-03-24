@@ -5,7 +5,7 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const { User } = require('../models');
-
+const { sendEmail } = require('../services/email');
 const router = express.Router();
 
 // Multer config per documenti utente
@@ -135,12 +135,34 @@ router.post('/forgot-password', async (req, res) => {
 
         const user = await User.findOne({ where: { email } });
         if (!user) {
-            return res.status(404).json({ message: 'Utente non trovato' });
+            return res.json({ message: 'Se l\'email è registrata, riceverai il link di reset.' });
         }
 
-        // Logic here would send an email with a reset link.
-        // For now, we mock success.
-        res.json({ message: 'Link di reset inviato con successo!' });
+        const resetToken = jwt.sign(
+            { id: user.id, purpose: 'reset-password' },
+            process.env.JWT_SECRET,
+            { expiresIn: '1h' }
+        );
+
+        const resetLink = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/reset-password?token=${resetToken}`;
+
+        await sendEmail(
+            email,
+            'Reset Password — Biblioteca Neunoi',
+            `
+                <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
+                    <h2 style="color: #E21F1D;">Reset della tua password</h2>
+                    <p>Ciao ${user.nome},</p>
+                    <p>Hai richiesto di reimpostare la password. Clicca il link:</p>
+                    <a href="${resetLink}" style="color: #E21F1D; font-weight: bold;">${resetLink}</a>
+                    <p style="color:#999; font-size:12px; margin-top: 20px;">
+                        Il link scade tra 1 ora. Se non hai richiesto il reset, ignora questa email.
+                    </p>
+                </div>
+            `
+        );
+
+        res.json({ message: 'Se l\'email è registrata, riceverai il link di reset.' });
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Errore del server' });
