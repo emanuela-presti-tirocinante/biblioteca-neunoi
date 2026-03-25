@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
 require('./services/email');
+require('./services/cronJobs');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
