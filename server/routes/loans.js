@@ -22,7 +22,7 @@ router.post('/', auth, async (req, res) => {
             const end = new Date(data_fine_prevista);
             const diffTime = Math.abs(end - start);
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            
+
             if (diffDays > 31) {
                 return res.status(400).json({ message: 'La durata massima del prestito è di 31 giorni' });
             }
@@ -70,8 +70,8 @@ router.get('/', auth, async (req, res) => {
         const loans = await Loan.findAll({
             where,
             include: [
-                { 
-                    model: Book, 
+                {
+                    model: Book,
                     attributes: ['titolo', 'autore', 'copertina_url', 'cod_archivio', 'copie_disponibili'],
                     include: [{ model: Category, attributes: ['nome'] }]
                 },
@@ -107,11 +107,12 @@ router.put('/:id', [auth], async (req, res) => {
             if (loan.Book.copie_disponibili > 0) {
                 await loan.Book.decrement('copie_disponibili');
                 loan.data_inizio = new Date();
-
-                // Default 30 days due date
-                const dueDate = new Date();
-                dueDate.setDate(dueDate.getDate() + 30);
-                loan.data_fine_prevista = dueDate;
+                // Use the date chosen by the user, otherwise default 30 days
+                if (!loan.data_fine_prevista) {
+                    const dueDate = new Date();
+                    dueDate.setDate(dueDate.getDate() + 30);
+                    loan.data_fine_prevista = dueDate;
+                }
             } else {
                 return res.status(400).json({ message: 'Nessuna copia disponibile per l\'approvazione' });
             }
