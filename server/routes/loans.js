@@ -129,23 +129,45 @@ router.put('/:id', [auth], async (req, res) => {
 
         // Send Email Notification
         const { sendEmail } = require('../services/email');
-        const statusMap = {
-            'approvato': 'Approvato',
-            'rifiutato': 'Rifiutato',
-            'restituito': 'Richiuso (Libro Restituito)'
+        const emailContent = {
+            approvato: {
+                subject: `Il tuo prestito è confermato — ${loan.Book.titolo}`,
+                html: `<div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
+                    <h2 style="color: #E21F1D;">Prestito confermato</h2>
+                    <p>Ciao ${loan.User.nome},</p>
+                    <p>la tua richiesta per <strong>${loan.Book.titolo}</strong> di ${loan.Book.autore} è stata approvata.</p>
+                    <p>Il libro è tuo fino al <strong>${loan.data_fine_prevista}</strong> — prenditi il tempo che ti serve, ma ricordati di restituirlo così altri possono leggerlo dopo di te.</p>
+                    <p>Buona lettura<br/>La Biblioteca di neu [nòi]</p>
+                </div>`
+            },
+            rifiutato: {
+                subject: `Richiesta non disponibile — ${loan.Book.titolo}`,
+                html: `<div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
+                    <h2 style="color: #E21F1D;">Richiesta non disponibile</h2>
+                    <p>Ciao ${loan.User.nome},</p>
+                    <p>purtroppo non è stato possibile approvare la tua richiesta per <strong>${loan.Book.titolo}</strong> di ${loan.Book.autore} in questo momento.</p>
+                    <p>Puoi sfogliare il catalogo direttamente dall'app — troverai tanti altri libri che aspettano solo di essere letti.</p>
+                    <p>A presto,<br/>La Biblioteca di neu [nòi]</p>
+                </div>`
+            },
+            restituito: {
+                subject: `Restituzione registrata — grazie!`,
+                html: `<div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
+                    <h2 style="color: #E21F1D;">Restituzione registrata</h2>
+                    <p>Ciao ${loan.User.nome},</p>
+                    <p>abbiamo registrato la restituzione di <strong>${loan.Book.titolo}</strong> di ${loan.Book.autore}. Grazie per avertene preso cura.</p>
+                    <p>Ogni libro che torna sullo scaffale è un libro che qualcun altro potrà scoprire — è questo il bello della biblioteca condivisa.</p>
+                    <p>Se vuoi, torna a scegliere qualcosa di nuovo <br/>La Biblioteca di neu [nòi]</p>
+                </div>`
+            }
         };
 
-        try {
+        if (emailContent[stato]) {
             await sendEmail(
                 loan.User.email,
-                `Aggiornamento Prestito: ${loan.Book.titolo}`,
-                `<h1>Aggiornamento Biblioteca Neunoi</h1>
-                 <p>Il caricamento della tua richiesta per il libro <strong>${loan.Book.titolo}</strong> è ora: <strong>${statusMap[stato] || stato}</strong>.</p>
-                 <p>Grazie,<br/>Il Team della Biblioteca</p>`
+                emailContent[stato].subject,
+                emailContent[stato].html
             );
-        } catch (emailErr) {
-            console.error('Errore invio email:', emailErr);
-            // Don't fail the whole request if email fails
         }
 
         res.json(loan);
