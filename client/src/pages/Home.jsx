@@ -144,9 +144,9 @@ const Home = () => {
                         <p className="text-gray-600 text-sm font-medium leading-relaxed max-w-[240px] mx-auto italic">
                             Scopri le novità della biblioteca di neu[nòi] con la nostra newsletter!
                         </p>
-                        <button className="bg-accent text-primary px-10 py-3 rounded-md text-sm font-black uppercase tracking-widest shadow-sm active:scale-95 transition-all">
+                        <a href="https://neunoi.it/newsletter/" target="_blank" rel="noopener noreferrer" className="bg-accent text-primary px-10 py-3 rounded-md text-sm font-black uppercase tracking-widest shadow-sm active:scale-95 transition-all">
                             iscriviti
-                        </button>
+                        </a>
                     </div>
                 </div>
             </div>
