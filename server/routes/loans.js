@@ -1,6 +1,7 @@
 const express = require('express');
 const { Loan, Book, User, Category } = require('../models');
 const { auth, adminParams } = require('../middleware/auth');
+const { sendEmail } = require('../services/email');
 const router = express.Router();
 
 // Request a Loan (User)
@@ -53,6 +54,31 @@ router.post('/', auth, async (req, res) => {
         });
 
         res.status(201).json(loan);
+
+        // Notifica admin nuova prenotazione
+        try {
+            const admin = await User.findOne({ where: { role: 'admin' } });
+            if (admin) {
+                await sendEmail(
+                    admin.email,
+                    `Nuova prenotazione — ${book.titolo}`,
+                    `<div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
+                <h2 style="color: #E21F1D;">Nuova richiesta di prestito</h2>
+                <p>Ciao ${admin.nome},</p>
+                <p>è arrivata una nuova richiesta di prestito:</p>
+                <ul>
+                    <li><strong>Libro:</strong> ${book.titolo} di ${book.autore}</li>
+                    <li><strong>Utente:</strong>  ${req.user.nome} ${req.user.cognome}</li>
+                    <li><strong>Data richiesta:</strong> ${new Date().toLocaleDateString('it-IT')}</li>
+                </ul>
+                <p>Accedi all'app per approvare o rifiutare la richiesta.</p>
+                <p>La Biblioteca di neu [nòi]</p>
+            </div>`
+                );
+            }
+        } catch (emailErr) {
+            console.error('Errore notifica admin:', emailErr);
+        }
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Errore durante la richiesta del prestito' });

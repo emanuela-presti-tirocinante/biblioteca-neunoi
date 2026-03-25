@@ -56,7 +56,7 @@ cron.schedule('0 9 * * *', async () => {
         const loans = await Loan.findAll({
             where: { stato: 'approvato' },
             include: [
-                { model: User, attributes: ['nome', 'email'] },
+                { model: User, attributes: ['nome', 'cognome', 'email'] },
                 { model: Book, attributes: ['titolo', 'autore'] }
             ]
         });
@@ -80,6 +80,36 @@ cron.schedule('0 9 * * *', async () => {
                     </div>`
                 );
                 console.log(`[CRON] Notifica ritardo (${ritardo}gg) inviata a ${loan.User.email} per "${loan.Book.titolo}"`);
+            }
+
+            // Notifica admin dopo 5 giorni di ritardo
+            if (ritardo === 5) {
+                try {
+                    const admin = await User.findOne({ where: { role: 'admin' } });
+                    if (admin) {
+                        await sendEmail(
+                            admin.email,
+                            `Segnalazione ritardo — ${loan.Book.titolo}`,
+                            `<div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
+                                <h2 style="color: #E21F1D;">Segnalazione ritardo</h2>
+                                <p>Ciao ${admin.nome},</p>
+                                <p>il seguente prestito è in ritardo di <strong>5 giorni</strong>:</p>
+                                <ul>
+                                    <li><strong>Libro:</strong> ${loan.Book.titolo} di ${loan.Book.autore}</li>
+                                    <li><strong>Utente:</strong> ${loan.User.nome} ${loan.User.cognome}</li>
+                                    <li><strong>Email utente:</strong> ${loan.User.email}</li>
+                                    <li><strong>Scadenza:</strong> ${loan.data_fine_prevista}</li>
+                                    <li><strong>Giorni di ritardo:</strong> ${ritardo}</li>
+                                </ul>
+                                <p>Accedi all'app per verificare la situazione.</p>
+                                <p>La Biblioteca di neu [nòi]</p>
+                            </div>`
+                        );
+                        console.log(`[CRON] Segnalazione ritardo inviata all'admin per "${loan.Book.titolo}" — utente: ${loan.User.email}`);
+                    }
+                } catch (emailErr) {
+                    console.error('[CRON] Errore notifica admin ritardo:', emailErr);
+                }
             }
         }
     } catch (err) {
