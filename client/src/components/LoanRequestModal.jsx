@@ -24,7 +24,7 @@ const LoanRequestModal = ({ book, isOpen, onClose, onConfirm, isLoading }) => {
                     {/* Header with Book Info */}
                     <div className="flex items-start space-x-4 pb-4">
                         <div className="w-16 h-24 bg-gray-100 rounded-2xl overflow-hidden shadow-sm shrink-0 ring-1 ring-gray-100">
-                            <img src={book.copertina_url || book.cover} alt={book.titolo} className="w-full h-full object-cover" />
+                            <img src={book.copertina_url || "/card-lista.jpg"} alt={book.titolo} className="w-full h-full object-cover" />
                         </div>
                         <div className="space-y-1.5 pt-1">
                             <span className="text-[8px] font-black text-secondary uppercase bg-accent px-2 py-0.5 rounded tracking-[0.1em]">Richiesta Prestito</span>
