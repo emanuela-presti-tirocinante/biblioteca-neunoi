@@ -14,6 +14,7 @@ const Registration = () => {
     const [confirmPassword, setConfirmPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState('');
+    const [isDocDropdownOpen, setIsDocDropdownOpen] = useState(false);
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
@@ -124,22 +125,44 @@ const Registration = () => {
                             <label className="text-primary font-black text-sm uppercase tracking-wide w-full text-center">
                                 Tipo Documento
                             </label>
-                            <div className="relative w-full max-w-[240px] flex items-center">
-                                <span className="text-gray-400 font-light text-2xl absolute left-0 leading-none">[</span>
-                                <select
-                                    value={tipoDocumento}
-                                    onChange={(e) => setTipoDocumento(e.target.value)}
-                                    className="w-full text-center bg-transparent border-b border-gray-400 px-4 py-1 text-sm focus:outline-none focus:border-primary transition-colors text-gray-700 font-medium appearance-none"
-                                >
-                                    <option value=""></option>
-                                    <option value="Carta d'Identità">Carta d'Identità</option>
-                                    <option value="Patente">Patente</option>
-                                    <option value="Passaporto">Passaporto</option>
-                                </select>
-                                <span className="text-gray-400 font-light text-2xl absolute right-0 leading-none">]</span>
+                            <div className="relative w-full max-w-[240px]">
+                                <div className="flex items-center">
+                                    <span className="text-gray-400 font-light text-2xl absolute left-0 leading-none">[</span>
+                                    <button
+                                        type="button"
+                                        onClick={() => setIsDocDropdownOpen(!isDocDropdownOpen)}
+                                        className="w-full text-center bg-transparent border-b border-gray-400 px-4 py-1 text-sm focus:outline-none focus:border-primary transition-colors text-gray-700 font-medium flex items-center justify-center gap-2"
+                                    >
+                                        <span className={tipoDocumento ? 'text-gray-700' : 'text-gray-400'}>
+                                            {tipoDocumento || 'Seleziona'}
+                                        </span>
+                                        <svg className="h-3 w-3 text-primary/50 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                        </svg>
+                                    </button>
+                                    <span className="text-gray-400 font-light text-2xl absolute right-0 leading-none">]</span>
+                                </div>
+                                {isDocDropdownOpen && (
+                                    <div className="absolute left-0 right-0 mt-1 bg-white rounded-lg shadow-xl z-50 animate-in fade-in zoom-in duration-200 origin-top">
+                                        <div className="py-2">
+                                            {["Carta d'Identità", "Patente", "Passaporto"].map((tipo) => (
+                                                <button
+                                                    key={tipo}
+                                                    type="button"
+                                                    onClick={() => {
+                                                        setTipoDocumento(tipo);
+                                                        setIsDocDropdownOpen(false);
+                                                    }}
+                                                    className="w-full text-left px-4 py-3 text-xs font-bold text-primary hover:bg-accent/10 hover:text-secondary transition-colors border-b border-gray-50 last:border-0"
+                                                >
+                                                    {tipo}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         </div>
-
                         {/* Numero Documento Field */}
                         <div className="flex flex-col items-center space-y-3">
                             <label className="text-primary font-black text-sm uppercase tracking-wide w-full text-center">
