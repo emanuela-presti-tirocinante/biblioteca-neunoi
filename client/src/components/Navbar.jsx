@@ -30,8 +30,11 @@ const Navbar = () => {
                 <div className="flex justify-between items-center h-14">
                     {/* Logo Section */}
                     <Link to="/" className="flex items-center" onClick={() => setIsDropdownOpen(false)}>
-                        <span className="bg-white px-1.5 py-0.5 rounded-sm text-primary font-black text-xl tracking-tighter">neu</span>
-                        <span className="text-white font-light text-xl tracking-tighter ml-0.5">[nòi]</span>
+                        <img
+                            src="/logo-neunoi.png"
+                            alt="neu [nòi]"
+                            className="h-8 w-auto"
+                        />
                     </Link>
 
                     {/* Navigation Links */}

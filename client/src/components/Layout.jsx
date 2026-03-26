@@ -10,10 +10,11 @@ const Layout = ({ children }) => {
                 </div>
             </main>
             <footer className="bg-primary border-t-2 border-accent py-4 flex flex-col items-center space-y-2 text-white text-[10px] font-medium tracking-tight">
-                <div className="bg-white px-3 py-1 rounded-sm scale-75 origin-center">
-                    <span className="text-primary font-black text-xl tracking-tighter">neu</span>
-                    <span className="text-primary font-light text-xl tracking-tighter">[nòi]</span>
-                </div>
+                    <img
+                        src="/logo-neunoi.png"
+                        alt="neu [nòi]"
+                        className="h-6 w-auto opacity-90"
+                    />
                 <p>091 573 91 29</p>
                 <p>coworking@neunoi.it</p>
             </footer>
