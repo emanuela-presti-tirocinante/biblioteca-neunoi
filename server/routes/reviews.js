@@ -88,6 +88,7 @@ router.get('/pending', auth, adminParams, async (req, res) => {
   try {
     const reviews = await Review.findAll({
       where: { approvata: false },
+      include: [{ model: Book, attributes: ['titolo'] }],
       order: [['createdAt', 'DESC']]
     });
     res.json(reviews);
