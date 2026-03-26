@@ -311,7 +311,7 @@ const CategoryDetail = () => {
                                     {/* Image Section (Left) */}
                                     <div className="w-20 h-28 flex-shrink-0 overflow-hidden bg-gray-100 rounded-lg">
                                         <img
-                                            src={book.copertina_url || "/book-placeholder.svg"}
+                                            src={book.copertina_url || "/card-lista.jpg"}
                                             alt={book.titolo}
                                             className="w-full h-full object-cover"
                                         />
@@ -473,7 +473,7 @@ const CategoryDetail = () => {
                     <div className="overflow-y-auto px-8 pt-6 pb-8 flex flex-col">
                         <div className="flex flex-col items-center mb-6">
                             <img
-                                src={selectedBook.copertina_url || "/book-placeholder.svg"}
+                                src={selectedBook.copertina_url || "/bottom-sheet.jpg"}
                                 alt={selectedBook.titolo}
                                 className="w-36 h-48 object-cover rounded-md shadow-lg mb-4"
                             />
