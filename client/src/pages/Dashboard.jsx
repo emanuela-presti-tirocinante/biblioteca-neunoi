@@ -1,3 +1,4 @@
+import ReviewModal from '../components/ReviewModal';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../utils/api';
@@ -12,6 +13,8 @@ const Dashboard = () => {
     const [activeTab, setActiveTab] = useState('in_corso'); // 'in_corso', 'in_attesa', 'storico', 'recensioni'
     const [reviews, setReviews] = useState([]);
     const [loadingReviews, setLoadingReviews] = useState(false);
+    const [reviewCounts, setReviewCounts] = useState({});
+    const [reviewModal, setReviewModal] = useState({ isOpen: false, bookId: null, bookTitle: '' });
 
     useEffect(() => {
         fetchLoans();
@@ -47,6 +50,7 @@ const Dashboard = () => {
         try {
             const res = await api.get('/loans');
             setLoans(res.data);
+            await fetchReviewCounts(res.data);
         } catch (err) {
             console.error("Error fetching loans", err);
         } finally {
@@ -54,9 +58,30 @@ const Dashboard = () => {
         }
     };
 
+    const fetchReviewCounts = async (loanList) => {
+        const counts = {};
+        await Promise.all(
+            loanList.map(async (loan) => {
+                if (!loan.Book?.id) return;
+                try {
+                    const res = await fetch(`${BASE_URL}/reviews/book/${loan.Book.id}`);
+                    if (res.ok) {
+                        const data = await res.json();
+                        counts[loan.Book.id] = data.length;
+                    } else {
+                        counts[loan.Book.id] = 0;
+                    }
+                } catch {
+                    counts[loan.Book.id] = 0;
+                }
+            })
+        );
+        setReviewCounts(counts);
+    };
+
     const Badge = ({ count, active, isHeader = false }) => {
         if (count === 0 && !isHeader) return null;
-        
+
         if (isHeader) {
             return (
                 <span className="ml-2 inline-flex items-center justify-center rounded-full font-black shadow-sm transition-all duration-300 w-6 h-6 text-[10px] bg-yellow-400 text-gray-900">
@@ -192,8 +217,21 @@ const Dashboard = () => {
                                     <p className="text-[10px] text-gray-500 font-bold uppercase mt-1">
                                         {loan.Book?.autore}
                                     </p>
-
-                                    <div className="mt-3 flex flex-col space-y-1">
+                                    <div className="flex items-center mt-1">
+                                        <MessageCircle size={12} className="text-secondary mr-1" />
+                                        <span className="text-[9px] font-black text-secondary">
+                                            {reviewCounts[loan.Book?.id] ?? 0} RECENSIONI
+                                        </span>
+                                       {activeTab !== 'in_attesa' && (
+                                            <button
+                                                onClick={() => setReviewModal({ isOpen: true, bookId: loan.Book?.id, bookTitle: loan.Book?.titolo })}
+                                                className="ml-2 text-[9px] font-black uppercase text-primary border border-primary rounded-xl px-2 py-0.5"
+                                            >
+                                                RECENSISCI
+                                            </button>
+                                        )}
+                                    </div>
+                                    <div className="mt-2 flex flex-col space-y-1">
                                         {activeTab === 'in_corso' && loan.data_fine_prevista && (
                                             <p className="text-[9px] font-bold text-secondary uppercase">
                                                 Scadenza: {new Date(loan.data_fine_prevista).toLocaleDateString()}
@@ -206,8 +244,7 @@ const Dashboard = () => {
                                         )}
                                         <div className="flex items-center space-x-2">
                                             <div className={`w-1.5 h-1.5 rounded-full ${loan.stato === 'approvato' ? 'bg-green-500' :
-                                                loan.stato === 'richiesto' ? 'bg-yellow-500' : 'bg-gray-400'
-                                                }`} />
+                                                loan.stato === 'richiesto' ? 'bg-yellow-500' : 'bg-gray-400'}`} />
                                             <span className="text-[9px] font-black uppercase text-gray-400 tracking-wider">
                                                 {getStatusLabel(loan.stato)}
                                             </span>
@@ -217,21 +254,12 @@ const Dashboard = () => {
 
                                 {/* Action (Right) */}
                                 <div className="flex items-center pl-2">
-                                    {activeTab === 'in_attesa' ? (
+                                    {activeTab === 'in_attesa' && (
                                         <button
                                             onClick={() => handleCancelLoan(loan.id)}
                                             className="px-3 py-2 bg-red-50 text-red-600 border border-red-100 rounded-xl hover:bg-red-100 transition-colors text-[9px] font-black uppercase tracking-widest"
                                         >
                                             Annulla
-                                        </button>
-                                    ) : (
-                                        <button
-                                            onClick={() => alert('Funzionalità recensioni in arrivo!')}
-                                            className="p-3 bg-accent/10 text-primary border border-accent/20 rounded-xl hover:bg-accent/20 transition-colors group"
-                                        >
-                                            <svg className="w-5 h-5 group-active:scale-90 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.54 1.118l-3.976-2.888a1 1 0 00-1.175 0l-3.976 2.888c-.784.57-1.838-.196-1.539-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.382-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
-                                            </svg>
                                         </button>
                                     )}
                                 </div>
@@ -307,6 +335,12 @@ const Dashboard = () => {
                     </button>
                 </div>
             </div>
+            <ReviewModal
+                isOpen={reviewModal.isOpen}
+                onClose={() => setReviewModal({ isOpen: false, bookId: null, bookTitle: '' })}
+                bookId={reviewModal.bookId}
+                bookTitle={reviewModal.bookTitle}
+            />
         </div>
     );
 };
