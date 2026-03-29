@@ -14,8 +14,8 @@ router.get('/', async (req, res) => {
         if (search) {
             where = {
                 [Op.or]: [
-                    { titolo: { [Op.like]: `%${search}%` } },
-                    { autore: { [Op.like]: `%${search}%` } }
+                    Sequelize.where(Sequelize.fn('LOWER', Sequelize.col('titolo')), { [Op.like]: `%${search.toLowerCase()}%` }),
+                    Sequelize.where(Sequelize.fn('LOWER', Sequelize.col('autore')), { [Op.like]: `%${search.toLowerCase()}%` })
                 ]
             };
         }
@@ -96,11 +96,11 @@ router.put('/:id', [auth, adminParams], async (req, res) => {
         const book = await Book.findByPk(req.params.id);
         if (!book) return res.status(404).json({ message: 'Book not found' });
 
-        await book.update({ 
-            titolo, 
-            autore, 
-            isbn, 
-            descrizione, 
+        await book.update({
+            titolo,
+            autore,
+            isbn,
+            descrizione,
             copie_totali,
             anno_pubblicazione,
             cod_archivio,
