@@ -15,17 +15,23 @@ const quoteRoutes = require('./routes/quotes');
 const reviewRoutes = require('./routes/reviews');
 const userRoutes = require('./routes/users');
 const { sequelize } = require('./models');
+const path = require('path');
 
 // Sync Database
+// Sync Database (Only if not in production or if explicitly asked)
 const syncDB = async () => {
-  try {
-    await sequelize.query('PRAGMA foreign_keys = OFF;');
-    await sequelize.sync({});
-    await sequelize.query('PRAGMA foreign_keys = ON;');
-    console.log('Database synchronized');
-  } catch (err) {
-    console.error('Database synchronization error:', err);
-  }
+    if (process.env.NODE_ENV === 'production') {
+        console.log('Skipping automatic sync in production');
+        return;
+    }
+    try {
+        await sequelize.query('PRAGMA foreign_keys = OFF;');
+        await sequelize.sync({});
+        await sequelize.query('PRAGMA foreign_keys = ON;');
+        console.log('Database synchronized');
+    } catch (err) {
+        console.error('Database synchronization error:', err);
+    }
 };
 syncDB();
 
@@ -43,9 +49,15 @@ app.use('/api/quotes', quoteRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/utenti', userRoutes);
 
-// Basic health check route
-app.get('/', (req, res) => {
-  res.send('Neunoi Library API is running!');
+// SERVE FRONTEND (STATIC FILES)
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Fallback for SPA (React Router)
+app.get('*', (req, res) => {
+    if (req.path.startsWith('/api') || req.path.startsWith('/uploads')) {
+        return res.status(404).send('Not found');
+    }
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 app.listen(PORT, '0.0.0.0', () => {

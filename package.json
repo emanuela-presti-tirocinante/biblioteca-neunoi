@@ -2,12 +2,10 @@
     "name": "neunoi-library-app",
     "version": "1.0.0",
     "scripts": {
-        "client": "npm run dev --prefix client",
-        "server": "npm run dev --prefix server",
-        "dev": "concurrently \"npm run server\" \"npm run client\"",
-        "install:all": "npm install && npm install --prefix server && npm install --prefix client"
+        "start": "node app.js",
+        "install:server": "npm install --prefix server"
     },
-    "devDependencies": {
-        "concurrently": "^8.2.0"
+    "dependencies": {
+        "dotenv": "^16.3.1"
     }
 }
