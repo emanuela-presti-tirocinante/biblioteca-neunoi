@@ -16,7 +16,7 @@ CREATE TABLE `Users` (
   `tipo_documento` VARCHAR(255),
   `numero_documento` VARCHAR(255),
   `documento_path` VARCHAR(255),
-  `createdAt` DATETIME NOT NULL DEFAULT NOW,
+  `createdAt` DATETIME NOT NULL DEFAULT NOW(),
   `updatedAt` DATETIME NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
