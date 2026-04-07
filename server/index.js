@@ -1,4 +1,5 @@
 const express = require('express');
+const path = require('path');
 const cors = require('cors');
 require('dotenv').config();
 require('./services/email');
@@ -32,7 +33,9 @@ syncDB();
 // Middleware
 app.use(cors());
 app.use(express.json());
-app.use('/uploads', express.static('uploads')); // Serve uploaded images
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+app.use('/assets', express.static(path.join(__dirname, '../assets')));
+app.use(express.static(path.join(__dirname, '..')));
 
 // Routes
 app.use('/api/auth', authRoutes);
@@ -43,9 +46,9 @@ app.use('/api/quotes', quoteRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/utenti', userRoutes);
 
-// Basic health check route
-app.get('/', (req, res) => {
-  res.send('Neunoi Library API is running!');
+// Fallback per React SPA: tutte le rotte non-API servono index.html
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../index.html'));
 });
 
 app.listen(PORT, '0.0.0.0', () => {
