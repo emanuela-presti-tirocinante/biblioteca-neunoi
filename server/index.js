@@ -1,4 +1,5 @@
 const express = require('express');
+const path = require('path');
 const cors = require('cors');
 require('dotenv').config();
 require('./services/email');
@@ -15,30 +16,26 @@ const quoteRoutes = require('./routes/quotes');
 const reviewRoutes = require('./routes/reviews');
 const userRoutes = require('./routes/users');
 const { sequelize } = require('./models');
-const path = require('path');
 
 // Sync Database
-// Sync Database (Only if not in production or if explicitly asked)
 const syncDB = async () => {
-    if (process.env.NODE_ENV === 'production') {
-        console.log('Skipping automatic sync in production');
-        return;
-    }
-    try {
-        await sequelize.query('PRAGMA foreign_keys = OFF;');
-        await sequelize.sync({});
-        await sequelize.query('PRAGMA foreign_keys = ON;');
-        console.log('Database synchronized');
-    } catch (err) {
-        console.error('Database synchronization error:', err);
-    }
+  try {
+    await sequelize.query('PRAGMA foreign_keys = OFF;');
+    await sequelize.sync({});
+    await sequelize.query('PRAGMA foreign_keys = ON;');
+    console.log('Database synchronized');
+  } catch (err) {
+    console.error('Database synchronization error:', err);
+  }
 };
 syncDB();
 
 // Middleware
 app.use(cors());
 app.use(express.json());
-app.use('/uploads', express.static('uploads')); // Serve uploaded images
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+app.use('/assets', express.static(path.join(__dirname, '../assets')));
+app.use(express.static(path.join(__dirname, '..')));
 
 // Routes
 app.use('/api/auth', authRoutes);
@@ -49,15 +46,9 @@ app.use('/api/quotes', quoteRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/utenti', userRoutes);
 
-// SERVE FRONTEND (STATIC FILES)
-app.use(express.static(path.join(__dirname, 'public')));
-
-// Fallback for SPA (React Router)
+// Fallback per React SPA: tutte le rotte non-API servono index.html
 app.get('*', (req, res) => {
-    if (req.path.startsWith('/api') || req.path.startsWith('/uploads')) {
-        return res.status(404).send('Not found');
-    }
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  res.sendFile(path.join(__dirname, '../index.html'));
 });
 
 app.listen(PORT, '0.0.0.0', () => {
