@@ -22,7 +22,19 @@ const Loan = sequelize.define('Loan', {
     data_restituzione_effettiva: {
         type: DataTypes.DATEONLY,
         allowNull: true
+    },
+    createdAt: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: DataTypes.NOW
+    },
+    updatedAt: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: DataTypes.NOW
     }
+}, {
+    timestamps: true
 });
 
 module.exports = Loan;
