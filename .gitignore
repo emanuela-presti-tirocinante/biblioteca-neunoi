@@ -34,3 +34,6 @@ yarn-debug.log*
 yarn-error.log*
 logs/
 *.log
+
+# Exclude client source on production
+client/
