@@ -31,7 +31,7 @@ const seedDatabase = async () => {
         await User.create({
             nome: 'Admin',
             cognome: 'Neunoi',
-            email: 'emanuelapresti@neunoi.it',
+            email: 'tirocinante@neunoi.it',
             password_hash: adminHash,
             role: 'admin'
         });
