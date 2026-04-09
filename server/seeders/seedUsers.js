@@ -12,7 +12,7 @@ const seedUsers = async () => {
 
         // Creazione Admin
         const [admin, adminCreated] = await User.findOrCreate({
-            where: { email: 'admin@neunoi.it' },
+            where: { email: 'emanuelapresti@neunoi.it' },
             defaults: {
                 nome: 'Admin',
                 cognome: 'Biblioteca',
