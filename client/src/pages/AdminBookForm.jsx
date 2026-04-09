@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../utils/api';
+import { toast } from 'sonner';
 
 const AdminBookForm = () => {
     const { id } = useParams();
@@ -34,6 +35,7 @@ const AdminBookForm = () => {
             setCategories(res.data);
         } catch (error) {
             console.error("Error fetching categories:", error);
+            toast.error("Errore nel caricamento delle categorie");
         }
     };
 
@@ -54,7 +56,7 @@ const AdminBookForm = () => {
             });
         } catch (error) {
             console.error("Error fetching book:", error);
-            alert("Errore nel caricamento del libro");
+            toast.error("Errore nel caricamento del libro");
         } finally {
             setIsLoading(false);
         }
@@ -62,17 +64,21 @@ const AdminBookForm = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        try {
-            if (isEditing) {
-                await api.put(`/books/${id}`, bookFormData);
-            } else {
-                await api.post('/books', bookFormData);
+        const promise = isEditing 
+            ? api.put(`/books/${id}`, bookFormData)
+            : api.post('/books', bookFormData);
+
+        toast.promise(promise, {
+            loading: isEditing ? 'Salvataggio modifiche...' : 'Aggiunta libro al catalogo...',
+            success: () => {
+                navigate('/admin/catalog');
+                return isEditing ? 'Libro aggiornato con successo!' : 'Libro aggiunto con successo!';
+            },
+            error: (err) => {
+                console.error("Error saving book:", err);
+                return "Errore durante il salvataggio";
             }
-            navigate('/admin/catalog');
-        } catch (error) {
-            console.error("Error saving book:", error);
-            alert("Errore durante il salvataggio");
-        }
+        });
     };
 
     return (

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../utils/api';
+import { toast } from 'sonner';
 
 const AdminCategoryForm = () => {
     const { id } = useParams();
@@ -31,7 +32,7 @@ const AdminCategoryForm = () => {
             }
         } catch (error) {
             console.error("Error fetching category:", error);
-            alert("Errore nel caricamento della categoria");
+            toast.error("Errore nel caricamento della categoria");
         } finally {
             setIsLoading(false);
         }
@@ -39,17 +40,21 @@ const AdminCategoryForm = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        try {
-            if (isEditing) {
-                await api.put(`/categories/${id}`, categoryFormData);
-            } else {
-                await api.post('/categories', categoryFormData);
+        const promise = isEditing
+            ? api.put(`/categories/${id}`, categoryFormData)
+            : api.post('/categories', categoryFormData);
+
+        toast.promise(promise, {
+            loading: isEditing ? 'Salvataggio modifiche...' : 'Creazione categoria...',
+            success: () => {
+                navigate('/admin/catalog', { state: { tab: 'categories' } });
+                return isEditing ? 'Categoria aggiornata con successo!' : 'Categoria creata con successo!';
+            },
+            error: (err) => {
+                console.error("Error saving category:", err);
+                return "Errore durante il salvataggio";
             }
-            navigate('/admin/catalog', { state: { tab: 'categories' } });
-        } catch (error) {
-            console.error("Error saving category:", error);
-            alert("Errore durante il salvataggio");
-        }
+        });
     };
 
     return (
