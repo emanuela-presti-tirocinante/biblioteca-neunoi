@@ -163,7 +163,7 @@ router.put('/:id', [auth], async (req, res) => {
                     <h2 style="color: #E21F1D;">Prestito confermato</h2>
                     <p>Ciao ${loan.User.nome},</p>
                     <p>la tua richiesta per <strong>${loan.Book.titolo}</strong> di ${loan.Book.autore} è stata approvata.</p>
-                    <p>Il libro è tuo fino al <strong>${loan.data_fine_prevista}</strong> — prenditi il tempo che ti serve, ma ricordati di restituirlo così altri possono leggerlo dopo di te.</p>
+                    <p>Il libro è tuo fino al <strong>${new Date(loan.data_fine_prevista).toLocaleDateString('it-IT', { day: 'numeric', month: 'long', year: 'numeric' })}</strong> — prenditi il tempo che ti serve, ma ricordati di restituirlo così altri possono leggerlo dopo di te.</p>
                     <p>Buona lettura<br/>La Biblioteca di neu [nòi]</p>
                 </div>`
             },
