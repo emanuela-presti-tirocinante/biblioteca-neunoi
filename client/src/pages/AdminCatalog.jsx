@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import api from '../utils/api';
+import { toast } from 'sonner';
+
 const AdminCatalog = () => {
     const navigate = useNavigate();
     const location = useLocation();
@@ -18,6 +20,7 @@ const AdminCatalog = () => {
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const categoryDropdownRef = useRef(null);
+
     const fetchBooks = async (p = 1) => {
         setIsLoadingData(true);
         try {
@@ -35,18 +38,22 @@ const AdminCatalog = () => {
             window.scrollTo({ top: 0, behavior: 'smooth' });
         } catch (error) {
             console.error("Error fetching books:", error);
+            toast.error("Errore nel caricamento dei libri");
         } finally {
             setIsLoadingData(false);
         }
     };
+
     const fetchCategories = async () => {
         try {
             const res = await api.get('/categories');
             setCategories(res.data);
         } catch (error) {
             console.error("Error fetching categories:", error);
+            toast.error("Errore nel caricamento delle categorie");
         }
     };
+
     const fetchStats = async () => {
         try {
             const [resBooks, resCats] = await Promise.all([
@@ -61,24 +68,29 @@ const AdminCatalog = () => {
             console.error("Error fetching stats:", error);
         }
     };
+
     const openDeleteConfirm = (item, type) => {
         setItemToDelete(item);
         setDeleteType(type);
         setIsDeleteSheetOpen(true);
     };
+
     const handleDeleteExecute = async () => {
         if (!itemToDelete || !deleteType) return;
-        try {
-            const endpoint = deleteType === 'book' ? `/books/${itemToDelete.id}` : `/categories/${itemToDelete.id}`;
-            await api.delete(endpoint);
-            setIsDeleteSheetOpen(false);
-            if (deleteType === 'book') fetchBooks();
-            else fetchCategories();
-            fetchStats();
-        } catch (error) {
-            console.error("Error deleting item:", error);
-            alert("Errore durante l'eliminazione");
-        }
+        const endpoint = deleteType === 'book' ? `/books/${itemToDelete.id}` : `/categories/${itemToDelete.id}`;
+        const promise = api.delete(endpoint);
+
+        toast.promise(promise, {
+            loading: 'Eliminazione in corso...',
+            success: () => {
+                setIsDeleteSheetOpen(false);
+                if (deleteType === 'book') fetchBooks();
+                else fetchCategories();
+                fetchStats();
+                return `${deleteType === 'book' ? 'Libro' : 'Categoria'} eliminato con successo`;
+            },
+            error: 'Errore durante l\'eliminazione'
+        });
     };
     const filteredCategories = categories.filter(cat =>
         cat.nome.toLowerCase().includes(search.toLowerCase())

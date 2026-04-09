@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import api from '../utils/api';
 import { useAuth } from '../context/AuthContext';
 import LoanRequestModal from '../components/LoanRequestModal';
+import { toast } from 'sonner';
 
 const SearchResults = () => {
     const navigate = useNavigate();
@@ -79,20 +80,22 @@ const SearchResults = () => {
 
     const handleConfirmLoan = async (loanData) => {
         setIsSubmitting(true);
-        try {
-            await api.post('/loans', { 
-                bookId: selectedBook.id, 
-                ...loanData 
-            });
-            alert(`Richiesta inviata con successo per: ${selectedBook.titolo}!`);
-            setIsRequestModalOpen(false);
-            document.body.style.overflow = 'auto';
-            navigate('/dashboard');
-        } catch (err) {
-            alert(err.response?.data?.message || 'Errore nella richiesta');
-        } finally {
-            setIsSubmitting(false);
-        }
+        const promise = api.post('/loans', { 
+            bookId: selectedBook.id, 
+            ...loanData 
+        });
+
+        toast.promise(promise, {
+            loading: 'Invio richiesta in corso...',
+            success: () => {
+                setIsRequestModalOpen(false);
+                document.body.style.overflow = 'auto';
+                navigate('/dashboard');
+                return `Richiesta inviata con successo per: ${selectedBook.titolo}!`;
+            },
+            error: (err) => err.response?.data?.message || 'Errore nella richiesta'
+        });
+        setIsSubmitting(false); // toast.promise handles loading state but we have a local one too
     };
 
     const openBook = (book) => {

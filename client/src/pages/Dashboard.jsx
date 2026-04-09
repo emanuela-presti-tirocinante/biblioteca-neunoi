@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../utils/api';
 import { MessageCircle } from 'lucide-react';
+import { toast } from 'sonner';
 
 const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
 
@@ -100,14 +101,15 @@ const Dashboard = () => {
     const handleCancelLoan = async (loanId) => {
         if (!window.confirm('Sei sicuro di voler annullare questa richiesta di prestito?')) return;
 
-        try {
-            await api.delete(`/loans/${loanId}`);
-            // Update local state by removing the deleted loan
-            setLoans(loans.filter(loan => loan.id !== loanId));
-        } catch (err) {
-            console.error("Error cancelling loan", err);
-            alert(err.response?.data?.message || "Errore durante l'annullamento del prestito");
-        }
+        const promise = api.delete(`/loans/${loanId}`);
+        toast.promise(promise, {
+            loading: 'Annullamento richiesta...',
+            success: () => {
+                setLoans(loans.filter(loan => loan.id !== loanId));
+                return 'Richiesta annullata con successo';
+            },
+            error: (err) => err.response?.data?.message || "Errore durante l'annullamento"
+        });
     };
 
     const filteredLoans = loans.filter(loan => {

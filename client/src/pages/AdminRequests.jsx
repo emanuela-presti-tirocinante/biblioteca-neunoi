@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import api from '../utils/api';
+import { toast } from 'sonner';
 
 const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
 
@@ -17,13 +18,15 @@ const AdminRequests = () => {
     };
 
     const handleAction = async (id, stato) => {
-        try {
-            await api.put(`/loans/${id}`, { stato });
-            fetchLoans(); // Refresh data
-        } catch (err) {
-            console.error(err);
-            alert('Errore durante l\'aggiornamento della richiesta');
-        }
+        const promise = api.put(`/loans/${id}`, { stato });
+        toast.promise(promise, {
+            loading: 'Aggiornamento in corso...',
+            success: () => {
+                fetchLoans();
+                return `Richiesta ${stato} con successo`;
+            },
+            error: 'Errore durante l\'aggiornamento della richiesta'
+        });
     };
 
     const formatDate = (dateString) => {
@@ -86,31 +89,41 @@ const AdminRequests = () => {
     };
 
     const handleApproveReview = async (reviewId) => {
-        try {
-            await fetch(`${BASE_URL}/reviews/${reviewId}/approva`, {
-                method: 'PATCH',
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                }
-            });
-            fetchReviews();
-        } catch (err) {
-            console.error(err);
-        }
+        const promise = fetch(`${BASE_URL}/reviews/${reviewId}/approva`, {
+            method: 'PATCH',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            }
+        });
+
+        toast.promise(promise, {
+            loading: 'Approvazione recensione...',
+            success: (res) => {
+                if (!res.ok) throw new Error();
+                fetchReviews();
+                return 'Recensione approvata!';
+            },
+            error: 'Errore durante l\'approvazione'
+        });
     };
 
     const handleDeleteReview = async (reviewId) => {
-        try {
-            await fetch(`${BASE_URL}/reviews/${reviewId}`, {
-                method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                }
-            });
-            fetchReviews();
-        } catch (err) {
-            console.error(err);
-        }
+        const promise = fetch(`${BASE_URL}/reviews/${reviewId}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            }
+        });
+
+        toast.promise(promise, {
+            loading: 'Eliminazione recensione...',
+            success: (res) => {
+                if (!res.ok) throw new Error();
+                fetchReviews();
+                return 'Recensione eliminata';
+            },
+            error: 'Errore durante l\'eliminazione'
+        });
     };
 
     // Filters based on state
