@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 import PasswordInput from '../components/PasswordInput';
+import { toast } from 'sonner';
 
 const Login = () => {
     const [email, setEmail] = useState('');
@@ -14,11 +15,15 @@ const Login = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
+        const loadingToast = toast.loading('Accesso in corso...');
         try {
             await login(email, password);
+            toast.success('Bentornato!', { id: loadingToast });
             navigate('/');
         } catch (err) {
-            setError(err.response?.data?.message || 'Email o password errati');
+            const message = err.response?.data?.message || 'Email o password errati';
+            setError(message);
+            toast.error(message, { id: loadingToast });
         }
     };
 

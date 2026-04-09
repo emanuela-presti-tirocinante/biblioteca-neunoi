@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 
+import { toast } from 'sonner';
+
 const Registration = () => {
     const [nome, setNome] = useState('');
     const [cognome, setCognome] = useState('');
@@ -22,9 +24,13 @@ const Registration = () => {
         setError('');
 
         if (password !== confirmPassword) {
-            return setError('Le password non coincidono');
+            const msg = 'Le password non coincidono';
+            setError(msg);
+            toast.error(msg);
+            return;
         }
 
+        const loadingToast = toast.loading('Registrazione in corso...');
         try {
             const formData = new FormData();
             formData.append('nome', nome);
@@ -44,9 +50,12 @@ const Registration = () => {
             const data = await res.json();
             if (!res.ok) throw new Error(data.message || 'Registrazione fallita');
 
+            toast.success('Registrazione completata! Benvenuto.', { id: loadingToast });
             navigate('/');
         } catch (err) {
-            setError(err.message || 'Registrazione fallita');
+            const msg = err.message || 'Registrazione fallita';
+            setError(msg);
+            toast.error(msg, { id: loadingToast });
         }
     };
 
