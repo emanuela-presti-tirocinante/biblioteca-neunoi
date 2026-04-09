@@ -21,8 +21,15 @@ import { Toaster } from 'sonner';
 function App() {
     return (
         <Router>
-            <Toaster position="top-right" richColors />
             <Layout>
+                <Toaster 
+                    position="top-center" 
+                    richColors 
+                    expand={true}
+                    toastOptions={{
+                        style: { zIndex: 9999 }
+                    }}
+                />
                 <Routes>
                     <Route path="/" element={<Home />} />
                     <Route path="/category/:id" element={<CategoryDetail />} />

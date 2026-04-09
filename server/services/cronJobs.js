@@ -12,9 +12,8 @@ const giorniDifferenza = (data) => {
     return Math.round((target - oggi) / (1000 * 60 * 60 * 24));
 };
 
-// CRON 1 — ogni giorno alle 08:00
-// Promemoria 3 giorni prima della scadenza
-cron.schedule('0 8 * * *', async () => {
+// Funzione logica per CRON 1
+const checkExpiringLoans = async () => {
     console.log('[CRON] Controllo promemoria scadenza...');
     try {
         const loans = await Loan.findAll({
@@ -45,12 +44,12 @@ cron.schedule('0 8 * * *', async () => {
         }
     } catch (err) {
         console.error('[CRON] Errore promemoria scadenza:', err);
+        throw err;
     }
-});
+};
 
-// CRON 2 — ogni giorno alle 09:00
-// Notifica ritardo: giorno dopo la scadenza, poi ogni 5 giorni
-cron.schedule('0 9 * * *', async () => {
+// Funzione logica per CRON 2
+const checkOverdueLoans = async () => {
     console.log('[CRON] Controllo ritardi...');
     try {
         const loans = await Loan.findAll({
@@ -114,7 +113,19 @@ cron.schedule('0 9 * * *', async () => {
         }
     } catch (err) {
         console.error('[CRON] Errore notifica ritardi:', err);
+        throw err;
     }
-});
+};
+
+// CRON 1 — ogni giorno alle 08:00
+cron.schedule('0 8 * * *', checkExpiringLoans);
+
+// CRON 2 — ogni giorno alle 09:00
+cron.schedule('0 9 * * *', checkOverdueLoans);
+
+module.exports = {
+    checkExpiringLoans,
+    checkOverdueLoans
+};
 
 console.log('[CRON] Job schedulati attivi.');

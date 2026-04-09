@@ -230,4 +230,24 @@ router.delete('/:id', auth, async (req, res) => {
     }
 });
 
+// Test Cron Jobs Manually (Admin Only)
+router.get('/test/cron-trigger', auth, async (req, res) => {
+    try {
+        if (req.user.role !== 'admin') {
+            return res.status(403).json({ message: 'Accesso negato' });
+        }
+        
+        const { checkExpiringLoans, checkOverdueLoans } = require('../services/cronJobs');
+        
+        console.log('[TEST] Avvio manuale dei cron jobs...');
+        await checkExpiringLoans();
+        await checkOverdueLoans();
+        
+        res.json({ message: 'Cron jobs completati correttamente. Controlla i log e le email.' });
+    } catch (error) {
+        console.error('[TEST] Errore trigger cron:', error);
+        res.status(500).json({ message: 'Errore durante l\'esecuzione dei test cron', error: error.message });
+    }
+});
+
 module.exports = router;
