@@ -16,9 +16,12 @@ import Profile from './pages/Profile';
 import EditProfile from './pages/EditProfile';
 import ResetPassword from './pages/ResetPassword';
 
+import { Toaster } from 'sonner';
+
 function App() {
     return (
         <Router>
+            <Toaster position="top-right" richColors />
             <Layout>
                 <Routes>
                     <Route path="/" element={<Home />} />
