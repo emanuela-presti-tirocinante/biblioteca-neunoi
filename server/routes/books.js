@@ -66,14 +66,10 @@ router.get('/:id', async (req, res) => {
 router.post('/', [auth, adminParams], async (req, res) => {
     try {
         const { titolo, autore, isbn, descrizione, copie_totali, categoryIds, anno_pubblicazione, cod_archivio, copertina_url } = req.body;
-        
-        // Sanitizzazione ISBN: se vuoto, salva null per evitare conflitti UNIQUE in MySQL
-        const sanitizedIsbn = (isbn && isbn.trim() !== '') ? isbn.trim() : null;
-
         const book = await Book.create({
             titolo,
             autore,
-            isbn: sanitizedIsbn,
+            isbn,
             descrizione,
             copie_totali,
             copie_disponibili: copie_totali,
@@ -100,13 +96,10 @@ router.put('/:id', [auth, adminParams], async (req, res) => {
         const book = await Book.findByPk(req.params.id);
         if (!book) return res.status(404).json({ message: 'Book not found' });
 
-        // Sanitizzazione ISBN: se vuoto, salva null per evitare conflitti UNIQUE in MySQL
-        const sanitizedIsbn = (isbn && isbn.trim() !== '') ? isbn.trim() : null;
-
         await book.update({
             titolo,
             autore,
-            isbn: sanitizedIsbn,
+            isbn,
             descrizione,
             copie_totali,
             anno_pubblicazione,

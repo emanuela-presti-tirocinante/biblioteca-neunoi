@@ -15,19 +15,7 @@ const Category = sequelize.define('Category', {
     copertina_url: {
         type: DataTypes.STRING,
         allowNull: true
-    },
-    createdAt: {
-        type: DataTypes.DATE,
-        allowNull: false,
-        defaultValue: DataTypes.NOW
-    },
-    updatedAt: {
-        type: DataTypes.DATE,
-        allowNull: false,
-        defaultValue: DataTypes.NOW
     }
-}, {
-    timestamps: true
 });
 
 module.exports = Category;

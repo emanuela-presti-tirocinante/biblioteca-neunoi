@@ -17,16 +17,18 @@ const reviewRoutes = require('./routes/reviews');
 const userRoutes = require('./routes/users');
 const { sequelize } = require('./models');
 
-// Verifica connessione al Database (senza modificare le tabelle)
-const testConnection = async () => {
+// Sync Database
+const syncDB = async () => {
   try {
-    await sequelize.authenticate();
-    console.log('Database connection established.');
+    await sequelize.query('PRAGMA foreign_keys = OFF;');
+    await sequelize.sync({});
+    await sequelize.query('PRAGMA foreign_keys = ON;');
+    console.log('Database synchronized');
   } catch (err) {
-    console.error('Unable to connect to database:', err);
+    console.error('Database synchronization error:', err);
   }
 };
-testConnection();
+syncDB();
 
 // Middleware
 app.use(cors());

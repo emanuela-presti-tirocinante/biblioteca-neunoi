@@ -7,17 +7,7 @@ const Review = sequelize.define('Review', {
   userId: { type: DataTypes.INTEGER, allowNull: true },
   nome_display: { type: DataTypes.STRING, allowNull: true },
   commento: { type: DataTypes.TEXT, allowNull: true },
-  approvata: { type: DataTypes.BOOLEAN, defaultValue: false },
-  createdAt: {
-    type: DataTypes.DATE,
-    allowNull: false,
-    defaultValue: DataTypes.NOW
-  },
-  updatedAt: {
-    type: DataTypes.DATE,
-    allowNull: false,
-    defaultValue: DataTypes.NOW
-  }
+  approvata: { type: DataTypes.BOOLEAN, defaultValue: false }
 }, { timestamps: true });
 
 module.exports = Review;
