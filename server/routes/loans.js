@@ -57,23 +57,20 @@ router.post('/', auth, async (req, res) => {
 
         // Notifica admin nuova prenotazione
         try {
-            const admin = await User.findOne({ where: { role: 'admin' } });
-            if (admin) {
+            const admins = await User.findAll({ where: { role: 'admin' } });
+            for (const admin of admins) {
                 await sendEmail(
                     admin.email,
-                    `Nuova prenotazione — ${book.titolo}`,
+                    'Nuova richiesta di prestito',
                     `<div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
-                <h2 style="color: #E21F1D;">Nuova richiesta di prestito</h2>
-                <p>Ciao ${admin.nome},</p>
-                <p>è arrivata una nuova richiesta di prestito:</p>
-                <ul>
-                    <li><strong>Libro:</strong> ${book.titolo} di ${book.autore}</li>
-                    <li><strong>Utente:</strong>  ${req.user.nome} ${req.user.cognome}</li>
-                    <li><strong>Data richiesta:</strong> ${new Date().toLocaleDateString('it-IT')}</li>
-                </ul>
-                <p>Accedi all'app per approvare o rifiutare la richiesta.</p>
-                <p>La Biblioteca di neu [nòi]</p>
-            </div>`
+                        <h2 style="color: #E21F1D;">Nuova richiesta di prestito</h2>
+                        <p>Ciao ${admin.nome},</p>
+                        <p>C'è una nuova richiesta di prestito per il libro: <strong>${book.titolo}</strong>.</p>
+                        <p>Utente: ${req.user.nome} ${req.user.cognome} (${req.user.email})</p>
+                        <p>Accedi al pannello admin per approvare o rifiutare la richiesta.</p>
+                        <br/>
+                        <p>La Biblioteca di neu [nòi]</p>
+                    </div>`
                 );
             }
         } catch (emailErr) {

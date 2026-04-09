@@ -81,11 +81,11 @@ const checkOverdueLoans = async () => {
                 console.log(`[CRON] Notifica ritardo (${ritardo}gg) inviata a ${loan.User.email} per "${loan.Book.titolo}"`);
             }
 
-            // Notifica admin dopo 5 giorni di ritardo
+            // Notifica admin dopo 5 giorni di ritardo (Tutti gli admin)
             if (ritardo === 5) {
                 try {
-                    const admin = await User.findOne({ where: { role: 'admin' } });
-                    if (admin) {
+                    const admins = await User.findAll({ where: { role: 'admin' } });
+                    for (const admin of admins) {
                         await sendEmail(
                             admin.email,
                             `Segnalazione ritardo — ${loan.Book.titolo}`,
@@ -104,7 +104,7 @@ const checkOverdueLoans = async () => {
                                 <p>La Biblioteca di neu [nòi]</p>
                             </div>`
                         );
-                        console.log(`[CRON] Segnalazione ritardo inviata all'admin per "${loan.Book.titolo}" — utente: ${loan.User.email}`);
+                        console.log(`[CRON] Segnalazione ritardo inviata all'admin ${admin.email} per "${loan.Book.titolo}"`);
                     }
                 } catch (emailErr) {
                     console.error('[CRON] Errore notifica admin ritardo:', emailErr);
