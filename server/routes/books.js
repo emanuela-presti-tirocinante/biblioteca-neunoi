@@ -1,3 +1,4 @@
+const express = require('express');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
@@ -20,7 +21,7 @@ const storage = multer.diskStorage({
     }
 });
 
-const upload = multer({ 
+const upload = multer({
     storage,
     fileFilter: (req, file, cb) => {
         if (file.mimetype.startsWith('image/')) cb(null, true);
@@ -90,7 +91,7 @@ router.get('/:id', async (req, res) => {
 router.post('/', [auth, adminParams, upload.single('copertina')], async (req, res) => {
     try {
         const { titolo, autore, isbn, descrizione, copie_totali, categoryIds, anno_pubblicazione, cod_archivio, copertina_url } = req.body;
-        
+
         let final_copertina_url = copertina_url || null;
         if (req.file) {
             final_copertina_url = `/uploads/books/${req.file.filename}`;
@@ -116,7 +117,7 @@ router.post('/', [auth, adminParams, upload.single('copertina')], async (req, re
             } else if (typeof categoryIds === 'number') {
                 ids = [categoryIds];
             }
-            
+
             if (ids.length > 0) {
                 await book.setCategories(ids);
             }
@@ -160,7 +161,7 @@ router.put('/:id', [auth, adminParams, upload.single('copertina')], async (req, 
             } else if (typeof categoryIds === 'number') {
                 ids = [categoryIds];
             }
-            
+
             if (ids.length > 0) {
                 await book.setCategories(ids);
             }
