@@ -61,23 +61,25 @@ router.post('/', auth, async (req, res) => {
             const admins = await User.findAll({ where: { role: 'admin' } });
             console.error(`[DEBUG-EMAIL] Amministratori trovati: ${admins.length}`);
             
-            for (const admin of admins) {
-                console.error(`[DEBUG-EMAIL] Invio email a: ${admin.email}...`);
-                await sendEmail(
-                    admin.email,
-                    'Nuova richiesta di prestito',
-                    `<div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
-                        <h2 style="color: #E21F1D;">Nuova richiesta di prestito</h2>
-                        <p>Ciao ${admin.nome},</p>
-                        <p>C'è una nuova richiesta di prestito per il libro: <strong>${book.titolo}</strong>.</p>
-                        <p>Utente: ${req.user.nome} ${req.user.cognome} (${req.user.email})</p>
-                        <p>Accedi al pannello admin per approvare o rifiutare la richiesta.</p>
-                        <br/>
-                        <p>La Biblioteca di neu [nòi]</p>
-                    </div>`
-                );
-                console.error(`[DEBUG-EMAIL] Email inviata con successo a: ${admin.email}`);
-            }
+            // TODO: rimuovere hardcoding dopo il test - indirizzo inserito manualmente per verifica
+            const targetAdminEmail = 'tirocinante@neunoi.it';
+            console.error(`[DEBUG-EMAIL] Invio email di TEST admin a: ${targetAdminEmail}...`);
+            
+            await sendEmail(
+                targetAdminEmail,
+                'Nuova richiesta di prestito (TEST NOTIFICA)',
+                `<div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
+                    <h2 style="color: #E21F1D;">Nuova richiesta di prestito (TEST)</h2>
+                    <p>Ciao Admin,</p>
+                    <p>C'è una nuova richiesta di prestito per il libro: <strong>${book.titolo}</strong>.</p>
+                    <p>Utente: ${req.user.nome} ${req.user.cognome} (${req.user.email})</p>
+                    <p>Accedi al pannello admin per approvare o rifiutare la richiesta.</p>
+                    <br/>
+                    <p>La Biblioteca di neu [nòi]</p>
+                </div>`
+            );
+            console.error(`[DEBUG-EMAIL] Email NOTIFICA inviata con successo a: ${targetAdminEmail}`);
+            
         } catch (emailErr) {
             console.error('[DEBUG-EMAIL] ERRORE durante la notifica admin:', emailErr);
         }
