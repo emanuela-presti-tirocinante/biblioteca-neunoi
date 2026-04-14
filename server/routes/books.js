@@ -180,6 +180,18 @@ router.delete('/:id', [auth, adminParams], async (req, res) => {
         const book = await Book.findByPk(req.params.id);
         if (!book) return res.status(404).json({ message: 'Book not found' });
 
+        // Se l'immagine è locale, cancelliamo il file fisico
+        if (book.copertina_url && book.copertina_url.startsWith('/uploads/')) {
+            const filePath = path.join(__dirname, '../../', book.copertina_url);
+            if (fs.existsSync(filePath)) {
+                try {
+                    fs.unlinkSync(filePath);
+                } catch (err) {
+                    console.error("Errore cancellazione file:", err);
+                }
+            }
+        }
+
         await book.destroy();
         res.json({ message: 'Book deleted' });
     } catch (error) {
