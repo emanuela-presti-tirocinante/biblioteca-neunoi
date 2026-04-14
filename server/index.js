@@ -20,9 +20,8 @@ const { sequelize } = require('./models');
 // Sync Database
 const syncDB = async () => {
   try {
-    await sequelize.query('PRAGMA foreign_keys = OFF;');
+    // Sync Database (PRAGMA rimossi perché compatibili solo con SQLite)
     await sequelize.sync({});
-    await sequelize.query('PRAGMA foreign_keys = ON;');
     console.log('Database synchronized');
   } catch (err) {
     console.error('Database synchronization error:', err);

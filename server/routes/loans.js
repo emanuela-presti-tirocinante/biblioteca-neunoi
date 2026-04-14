@@ -57,8 +57,12 @@ router.post('/', auth, async (req, res) => {
 
         // Notifica admin nuova prenotazione
         try {
+            console.log('[DEBUG-EMAIL] Cerco amministratori nel database...');
             const admins = await User.findAll({ where: { role: 'admin' } });
+            console.log(`[DEBUG-EMAIL] Amministratori trovati: ${admins.length}`);
+            
             for (const admin of admins) {
+                console.log(`[DEBUG-EMAIL] Invio email a: ${admin.email}...`);
                 await sendEmail(
                     admin.email,
                     'Nuova richiesta di prestito',
@@ -72,9 +76,10 @@ router.post('/', auth, async (req, res) => {
                         <p>La Biblioteca di neu [nòi]</p>
                     </div>`
                 );
+                console.log(`[DEBUG-EMAIL] Email inviata con successo a: ${admin.email}`);
             }
         } catch (emailErr) {
-            console.error('Errore notifica admin:', emailErr);
+            console.error('[DEBUG-EMAIL] ERRORE durante la notifica admin:', emailErr);
         }
     } catch (error) {
         console.error(error);
