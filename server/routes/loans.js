@@ -53,38 +53,31 @@ router.post('/', auth, async (req, res) => {
             stato: 'richiesto'
         });
 
-        // --- DIAGNOSTICA ADMIN ---
-        let adminDebug = 'Inizializzazione...';
+        // Notifica admin nuova richiesta
         try {
-            console.error('[DEBUG-EMAIL] Avvio notifica admin...');
-            // TODO: rimuovere hardcoding dopo il test - indirizzo inserito manualmente per verifica
-            const targetAdminEmail = 'tirocinante@neunoi.it';
-            
-            await sendEmail(
-                targetAdminEmail,
-                'Nuova richiesta di prestito (TEST NOTIFICA)',
-                `<div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
-                    <h2 style="color: #E21F1D;">Nuova richiesta di prestito (TEST)</h2>
-                    <p>Ciao Admin,</p>
-                    <p>C'è una nuova richiesta di prestito per il libro: <strong>${book.titolo}</strong>.</p>
-                    <p>Utente: ${req.user.nome} ${req.user.cognome} (${req.user.email})</p>
-                    <p>Accedi al pannello admin per approvare o rifiutare la richiesta.</p>
-                    <br/>
-                    <p>La Biblioteca di neu [nòi]</p>
-                </div>`
-            );
-            adminDebug = `Email inviata con successo a ${targetAdminEmail}`;
-            console.error(`[DEBUG-EMAIL] ${adminDebug}`);
+            const admins = await User.findAll({ where: { role: 'admin' } });
+            for (const admin of admins) {
+                await sendEmail(
+                    admin.email,
+                    `Nuova richiesta di prestito — ${book.titolo}`,
+                    `<div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
+                        <h2 style="color: #E21F1D;">Nuova richiesta di prestito</h2>
+                        <p>Ciao ${admin.nome},</p>
+                        <p>C'è una nuova richiesta di prestito per il libro: <strong>${book.titolo}</strong>.</p>
+                        <p>Utente: ${req.user.nome} ${req.user.cognome} (${req.user.email})</p>
+                        <p>Accedi al pannello admin per approvare o rifiutare la richiesta.</p>
+                        <br/>
+                        <p>La Biblioteca di neu [nòi]</p>
+                    </div>`
+                );
+            }
         } catch (emailErr) {
-            adminDebug = `Errore durante l'invio: ${emailErr.message}`;
-            console.error('[DEBUG-EMAIL] ERRORE:', emailErr);
+            console.error('Errore notifica admin:', emailErr);
         }
-        // -------------------------
 
         res.status(201).json({ 
             message: 'Richiesta di prestito inviata con successo', 
-            loan,
-            adminNotificationDebug: adminDebug // Questa riga ti permette di leggere l'esito nel browser
+            loan 
         });
     } catch (error) {
         console.error(error);
