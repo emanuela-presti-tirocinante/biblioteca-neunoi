@@ -1,8 +1,32 @@
-const express = require('express');
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
 const { Book, Category, Sequelize } = require('../models');
 const { auth, adminParams } = require('../middleware/auth');
 const router = express.Router();
 const { Op } = Sequelize;
+
+// Configurazione Multer per copertine libri
+const booksDir = path.join(__dirname, '../../uploads/books');
+if (!fs.existsSync(booksDir)) {
+    fs.mkdirSync(booksDir, { recursive: true });
+}
+
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => cb(null, booksDir),
+    filename: (req, file, cb) => {
+        const uniqueName = `book_${Date.now()}_${file.originalname}`;
+        cb(null, uniqueName);
+    }
+});
+
+const upload = multer({ 
+    storage,
+    fileFilter: (req, file, cb) => {
+        if (file.mimetype.startsWith('image/')) cb(null, true);
+        else cb(new Error('Solo immagini permesse'), false);
+    }
+});
 
 // Get all books (with filters and search)
 router.get('/', async (req, res) => {
@@ -63,9 +87,15 @@ router.get('/:id', async (req, res) => {
 });
 
 // Admin: Create Book
-router.post('/', [auth, adminParams], async (req, res) => {
+router.post('/', [auth, adminParams, upload.single('copertina')], async (req, res) => {
     try {
         const { titolo, autore, isbn, descrizione, copie_totali, categoryIds, anno_pubblicazione, cod_archivio, copertina_url } = req.body;
+        
+        let final_copertina_url = copertina_url || null;
+        if (req.file) {
+            final_copertina_url = `/uploads/books/${req.file.filename}`;
+        }
+
         const book = await Book.create({
             titolo,
             autore,
@@ -75,11 +105,21 @@ router.post('/', [auth, adminParams], async (req, res) => {
             copie_disponibili: copie_totali,
             anno_pubblicazione,
             cod_archivio,
-            copertina_url
+            copertina_url: final_copertina_url
         });
 
-        if (categoryIds && categoryIds.length > 0) {
-            await book.setCategories(categoryIds);
+        if (categoryIds) {
+            let ids = [];
+            if (Array.isArray(categoryIds)) ids = categoryIds;
+            else if (typeof categoryIds === 'string') {
+                ids = categoryIds.split(',').map(id => parseInt(id)).filter(id => !isNaN(id));
+            } else if (typeof categoryIds === 'number') {
+                ids = [categoryIds];
+            }
+            
+            if (ids.length > 0) {
+                await book.setCategories(ids);
+            }
         }
 
         res.status(201).json(book);
@@ -90,11 +130,16 @@ router.post('/', [auth, adminParams], async (req, res) => {
 });
 
 // Admin: Update Book
-router.put('/:id', [auth, adminParams], async (req, res) => {
+router.put('/:id', [auth, adminParams, upload.single('copertina')], async (req, res) => {
     try {
         const { titolo, autore, isbn, descrizione, copie_totali, categoryIds, anno_pubblicazione, cod_archivio, copertina_url } = req.body;
         const book = await Book.findByPk(req.params.id);
         if (!book) return res.status(404).json({ message: 'Book not found' });
+
+        let final_copertina_url = copertina_url;
+        if (req.file) {
+            final_copertina_url = `/uploads/books/${req.file.filename}`;
+        }
 
         await book.update({
             titolo,
@@ -104,15 +149,26 @@ router.put('/:id', [auth, adminParams], async (req, res) => {
             copie_totali,
             anno_pubblicazione,
             cod_archivio,
-            copertina_url
+            copertina_url: final_copertina_url
         });
 
         if (categoryIds) {
-            await book.setCategories(categoryIds);
+            let ids = [];
+            if (Array.isArray(categoryIds)) ids = categoryIds;
+            else if (typeof categoryIds === 'string') {
+                ids = categoryIds.split(',').map(id => parseInt(id)).filter(id => !isNaN(id));
+            } else if (typeof categoryIds === 'number') {
+                ids = [categoryIds];
+            }
+            
+            if (ids.length > 0) {
+                await book.setCategories(ids);
+            }
         }
 
         res.json(book);
     } catch (error) {
+        console.error(error);
         res.status(500).json({ message: 'Server error' });
     }
 });

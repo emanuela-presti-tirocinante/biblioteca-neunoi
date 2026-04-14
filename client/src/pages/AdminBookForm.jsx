@@ -10,6 +10,8 @@ const AdminBookForm = () => {
 
     const [categories, setCategories] = useState([]);
     const [isLoading, setIsLoading] = useState(isEditing);
+    const [selectedFile, setSelectedFile] = useState(null);
+    const [previewUrl, setPreviewUrl] = useState('');
     const [bookFormData, setBookFormData] = useState({
         titolo: '',
         autore: '',
@@ -62,11 +64,35 @@ const AdminBookForm = () => {
         }
     };
 
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setSelectedFile(file);
+            setPreviewUrl(URL.createObjectURL(file));
+        }
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
+        
+        const formData = new FormData();
+        // Aggiungi tutti i campi testuali
+        Object.keys(bookFormData).forEach(key => {
+            if (key === 'categoryIds') {
+                formData.append(key, bookFormData[key].join(','));
+            } else {
+                formData.append(key, bookFormData[key]);
+            }
+        });
+
+        // Aggiungi il file se presente
+        if (selectedFile) {
+            formData.append('copertina', selectedFile);
+        }
+
         const promise = isEditing 
-            ? api.put(`/books/${id}`, bookFormData)
-            : api.post('/books', bookFormData);
+            ? api.put(`/books/${id}`, formData, { headers: { 'Content-Type': 'multipart/form-data' } })
+            : api.post('/books', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
 
         toast.promise(promise, {
             loading: isEditing ? 'Salvataggio modifiche...' : 'Aggiunta libro al catalogo...',
@@ -76,7 +102,7 @@ const AdminBookForm = () => {
             },
             error: (err) => {
                 console.error("Error saving book:", err);
-                return "Errore durante il salvataggio";
+                return err.response?.data?.message || "Errore durante il salvataggio";
             }
         });
     };
@@ -202,15 +228,66 @@ const AdminBookForm = () => {
                     </div>
 
                     <div className="space-y-6">
-                        <div className="space-y-2">
-                            <label className="text-[9px] font-black text-primary uppercase tracking-widest ml-1">URL Copertina</label>
-                            <input 
-                                type="text"
-                                value={bookFormData.copertina_url}
-                                onChange={(e) => setBookFormData({...bookFormData, copertina_url: e.target.value})}
-                                placeholder="HTTPS://..."
-                                className="w-full bg-primary/[0.02] border border-primary/10 rounded-2xl px-6 py-4 text-xs font-black text-primary placeholder:text-primary/20 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all shadow-sm"
-                            />
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+                            <div className="space-y-4">
+                                <div className="space-y-2">
+                                    <label className="text-[9px] font-black text-primary uppercase tracking-widest ml-1">Carica Copertina (File)</label>
+                                    <div className="relative group">
+                                        <input 
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={handleFileChange}
+                                            className="hidden"
+                                            id="copertina-upload"
+                                        />
+                                        <label 
+                                            htmlFor="copertina-upload"
+                                            className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-primary/20 rounded-2xl cursor-pointer hover:bg-primary/5 hover:border-primary/40 transition-all group"
+                                        >
+                                            <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                                                <svg className="w-8 h-8 mb-3 text-primary/40 group-hover:text-primary/60 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                                                </svg>
+                                                <p className="text-[10px] font-black text-primary/40 group-hover:text-primary/60 uppercase tracking-widest">
+                                                    {selectedFile ? 'Cambia Immagine' : 'Seleziona Immagine'}
+                                                </p>
+                                            </div>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-[9px] font-black text-primary uppercase tracking-widest ml-1">URL Copertina (Fallback o Esterno)</label>
+                                    <input 
+                                        type="text"
+                                        value={bookFormData.copertina_url}
+                                        onChange={(e) => setBookFormData({...bookFormData, copertina_url: e.target.value})}
+                                        placeholder="HTTPS://..."
+                                        className="w-full bg-primary/[0.02] border border-primary/10 rounded-2xl px-6 py-4 text-xs font-black text-primary placeholder:text-primary/20 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all shadow-sm"
+                                    />
+                                    <p className="text-[8px] font-bold text-gray-400 italic px-1">Se carichi un file, l'URL sopra verrà ignorato.</p>
+                                </div>
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="text-[9px] font-black text-primary uppercase tracking-widest ml-1">Anteprima</label>
+                                <div className="w-full h-[256px] bg-gray-50 rounded-2xl border border-primary/5 flex items-center justify-center overflow-hidden">
+                                    {previewUrl || bookFormData.copertina_url ? (
+                                        <img 
+                                            src={previewUrl || bookFormData.copertina_url} 
+                                            alt="Preview" 
+                                            className="w-full h-full object-cover"
+                                            onError={(e) => {
+                                                e.target.onerror = null;
+                                                e.target.src = '/card-lista.jpg';
+                                            }}
+                                        />
+                                    ) : (
+                                        <div className="text-center p-8">
+                                            <p className="text-[9px] font-black text-gray-300 uppercase italic">Nessuna anteprima</p>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
                         </div>
                         <div className="space-y-2">
                             <label className="text-[9px] font-black text-primary uppercase tracking-widest ml-1">Descrizione Libro</label>
