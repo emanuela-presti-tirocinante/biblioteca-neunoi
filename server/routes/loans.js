@@ -53,17 +53,12 @@ router.post('/', auth, async (req, res) => {
             stato: 'richiesto'
         });
 
-        res.status(201).json(loan);
-
-        // Notifica admin nuova prenotazione
+        // --- DIAGNOSTICA ADMIN ---
+        let adminDebug = 'Inizializzazione...';
         try {
-            console.error('[DEBUG-EMAIL] Cerco amministratori nel database...');
-            const admins = await User.findAll({ where: { role: 'admin' } });
-            console.error(`[DEBUG-EMAIL] Amministratori trovati: ${admins.length}`);
-            
+            console.error('[DEBUG-EMAIL] Avvio notifica admin...');
             // TODO: rimuovere hardcoding dopo il test - indirizzo inserito manualmente per verifica
             const targetAdminEmail = 'tirocinante@neunoi.it';
-            console.error(`[DEBUG-EMAIL] Invio email di TEST admin a: ${targetAdminEmail}...`);
             
             await sendEmail(
                 targetAdminEmail,
@@ -78,11 +73,19 @@ router.post('/', auth, async (req, res) => {
                     <p>La Biblioteca di neu [nòi]</p>
                 </div>`
             );
-            console.error(`[DEBUG-EMAIL] Email NOTIFICA inviata con successo a: ${targetAdminEmail}`);
-            
+            adminDebug = `Email inviata con successo a ${targetAdminEmail}`;
+            console.error(`[DEBUG-EMAIL] ${adminDebug}`);
         } catch (emailErr) {
-            console.error('[DEBUG-EMAIL] ERRORE durante la notifica admin:', emailErr);
+            adminDebug = `Errore durante l'invio: ${emailErr.message}`;
+            console.error('[DEBUG-EMAIL] ERRORE:', emailErr);
         }
+        // -------------------------
+
+        res.status(201).json({ 
+            message: 'Richiesta di prestito inviata con successo', 
+            loan,
+            adminNotificationDebug: adminDebug // Questa riga ti permette di leggere l'esito nel browser
+        });
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Errore durante la richiesta del prestito' });
