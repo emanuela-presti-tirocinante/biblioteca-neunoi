@@ -44,8 +44,6 @@ const LoanRequestModal = ({ book, isOpen, onClose, onConfirm, isLoading }) => {
                         isLoading={{ isModal: true, loading: isLoading }}
                         onValidationChange={setIsValid}
                     />
-                    {/* Bottom fade for scroll context */}
-                    <div className="sticky bottom-0 left-0 right-0 h-10 bg-gradient-to-t from-white to-transparent pointer-events-none"></div>
                 </div>
 
                 {/* Sticky Footer Actions */}
