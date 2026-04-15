@@ -65,22 +65,22 @@ const ReviewModal = ({ isOpen, onClose, bookId, bookTitle }) => {
             {/* Floating Sheet */}
             <div className="relative bg-white rounded-t-[40px] md:rounded-[40px] shadow-2xl animate-slide-up w-full max-w-lg mx-auto overflow-hidden flex flex-col max-h-[85vh] max-h-[85dvh]">
                 {/* Fixed Header */}
-                <div className="shrink-0 p-6 pb-0">
+                <div className="shrink-0 p-4 pb-0">
                     {/* Drag Handle UI */}
-                    <div className="w-12 h-1.5 bg-gray-100 rounded-full mx-auto mb-4 cursor-pointer" onClick={onClose}></div>
+                    <div className="w-10 h-1 bg-gray-100 rounded-full mx-auto mb-2 cursor-pointer" onClick={onClose}></div>
                     
                     {/* Header with Title */}
-                    <div className="pb-4">
-                        <span className="text-[8px] font-black text-secondary uppercase bg-accent px-2 py-0.5 rounded tracking-[0.1em] mb-1.5 inline-block">
+                    <div className="pb-3">
+                        <span className="text-[7px] font-black text-secondary uppercase bg-accent px-1.5 py-0.5 rounded tracking-[0.1em] mb-1 inline-block">
                             Lascia una recensione
                         </span>
-                        <h2 className="text-sm font-black text-primary uppercase leading-tight line-clamp-2">{bookTitle}</h2>
+                        <h2 className="text-xs font-black text-primary uppercase leading-tight line-clamp-1">{bookTitle}</h2>
                     </div>
                     <div className="h-px bg-gray-100 -mx-6"></div>
                 </div>
 
                 {/* Scrollable Context Area */}
-                <div className="flex-grow overflow-y-auto px-6 py-6 custom-scrollbar relative">
+                <div className="flex-grow overflow-y-auto px-5 py-4 custom-scrollbar relative">
                     {success ? (
                         <div className="flex flex-col items-center justify-center py-12 space-y-4">
                             <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mb-2">
@@ -94,15 +94,15 @@ const ReviewModal = ({ isOpen, onClose, bookId, bookTitle }) => {
                             </p>
                         </div>
                     ) : (
-                        <div className="space-y-6">
+                        <div className="space-y-4">
                             {/* Textarea commento */}
                             <div className="space-y-2">
                                 <textarea
                                     value={commento}
                                     onChange={e => setCommento(e.target.value)}
                                     placeholder="Scrivi la tua recensione (opzionale)"
-                                    rows={5}
-                                    className={`w-full resize-none rounded-3xl border px-4 py-4 text-sm font-medium text-gray-700 placeholder-gray-300 focus:outline-none focus:ring-4 transition-all ${
+                                    rows={3}
+                                    className={`w-full resize-none rounded-2xl border px-4 py-3 text-sm font-medium text-gray-700 placeholder-gray-300 focus:outline-none focus:ring-4 transition-all ${
                                         isOverLimit
                                             ? 'border-red-200 bg-red-50/50 focus:border-red-400 focus:ring-red-100'
                                             : 'border-gray-100 bg-gray-50 focus:border-secondary focus:ring-secondary/10'
@@ -155,18 +155,18 @@ const ReviewModal = ({ isOpen, onClose, bookId, bookTitle }) => {
 
                 {/* Sticky Footer Actions */}
                 {!success && (
-                    <div className="shrink-0 p-4 pt-4 bg-white border-t border-gray-50 flex flex-col space-y-2">
+                    <div className="shrink-0 p-3 pt-3 bg-white border-t border-gray-50 flex flex-col space-y-2">
                         <button
                             onClick={handleSubmit}
                             disabled={loading || isOverLimit}
-                            className={`w-full py-4 rounded-2xl font-black uppercase text-xs tracking-widest shadow-xl transition-all active:scale-[0.98] flex items-center justify-center space-x-2
+                            className={`w-full py-3.5 rounded-xl font-black uppercase text-[11px] tracking-widest shadow-xl transition-all active:scale-[0.98] flex items-center justify-center space-x-2
                                 ${(loading || isOverLimit) 
                                     ? 'bg-gray-200 text-gray-400 cursor-not-allowed shadow-none' 
                                     : 'bg-secondary text-white shadow-secondary/20 hover:bg-secondary/90'}`}
                         >
                             {loading ? (
                                 <div className="flex items-center justify-center space-x-3">
-                                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                                    <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
                                     <span>INVIO...</span>
                                 </div>
                             ) : (
@@ -175,7 +175,7 @@ const ReviewModal = ({ isOpen, onClose, bookId, bookTitle }) => {
                         </button>
                         <button
                             onClick={onClose}
-                            className="w-full py-4 text-gray-400 font-black uppercase text-[10px] tracking-widest hover:bg-gray-50 rounded-2xl transition-all"
+                            className="w-full py-3 text-gray-400 font-black uppercase text-[9px] tracking-widest hover:bg-gray-50 rounded-xl transition-all"
                         >
                             CHIUDI
                         </button>
