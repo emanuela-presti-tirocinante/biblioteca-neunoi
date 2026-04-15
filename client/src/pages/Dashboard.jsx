@@ -5,8 +5,6 @@ import api from '../utils/api';
 import { MessageCircle } from 'lucide-react';
 import { toast } from 'sonner';
 
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
-
 const Dashboard = () => {
     const navigate = useNavigate();
     const [loans, setLoans] = useState([]);
@@ -25,19 +23,8 @@ const Dashboard = () => {
     const fetchReviews = async () => {
         setLoadingReviews(true);
         try {
-            const token = localStorage.getItem('token');
-            if (!token) return;
-            const res = await fetch(`${BASE_URL}/reviews/user/me`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-            if (res.ok) {
-                const data = await res.json();
-                setReviews(data);
-            } else {
-                setReviews([]);
-            }
+            const res = await api.get('/reviews/user/me');
+            setReviews(res.data);
         } catch (err) {
             console.error("Error fetching reviews", err);
             setReviews([]);
@@ -65,13 +52,8 @@ const Dashboard = () => {
             loanList.map(async (loan) => {
                 if (!loan.Book?.id) return;
                 try {
-                    const res = await fetch(`${BASE_URL}/reviews/book/${loan.Book.id}`);
-                    if (res.ok) {
-                        const data = await res.json();
-                        counts[loan.Book.id] = data.length;
-                    } else {
-                        counts[loan.Book.id] = 0;
-                    }
+                    const res = await api.get(`/reviews/book/${loan.Book.id}`);
+                    counts[loan.Book.id] = res.data.length;
                 } catch {
                     counts[loan.Book.id] = 0;
                 }
