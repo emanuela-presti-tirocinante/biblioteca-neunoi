@@ -7,7 +7,16 @@ const Review = sequelize.define('Review', {
   userId: { type: DataTypes.INTEGER, allowNull: true },
   nome_display: { type: DataTypes.STRING, allowNull: true },
   commento: { type: DataTypes.TEXT, allowNull: true },
-  approvata: { type: DataTypes.BOOLEAN, defaultValue: false }
+  approvata: { 
+    type: DataTypes.BOOLEAN, 
+    defaultValue: false,
+    get() {
+      const rawValue = this.getDataValue('approvata');
+      if (typeof rawValue === 'boolean') return rawValue;
+      if (rawValue === '1' || rawValue === 1 || rawValue === 'true') return true;
+      return false;
+    }
+  }
 }, { timestamps: true });
 
 module.exports = Review;
