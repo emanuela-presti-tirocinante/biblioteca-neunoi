@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
+import api from '../utils/api';
 const MAX_CHARS = 1000;
 
 const ReviewModal = ({ isOpen, onClose, bookId, bookTitle }) => {
@@ -35,23 +34,12 @@ const ReviewModal = ({ isOpen, onClose, bookId, bookTitle }) => {
         setError('');
 
         try {
-            const token = localStorage.getItem('token');
-            const headers = { 'Content-Type': 'application/json' };
-            if (token) headers['Authorization'] = `Bearer ${token}`;
-
-            const res = await fetch(`${BASE_URL}/reviews/book/${bookId}`, {
-                method: 'POST',
-                headers,
-                body: JSON.stringify({
-                    commento: commento.trim() || null,
-                    nome_display: nomeDisplay.trim() || null,
-                }),
+            await api.post(`/reviews/book/${bookId}`, {
+                commento: commento.trim() || null,
+                nome_display: nomeDisplay.trim() || null,
             });
 
-            if (!res.ok) {
-                const data = await res.json();
-                throw new Error(data.message || 'Errore durante l\'invio.');
-            }
+
 
             setSuccess(true);
             setTimeout(() => {
@@ -75,11 +63,11 @@ const ReviewModal = ({ isOpen, onClose, bookId, bookTitle }) => {
             ></div>
             
             {/* Floating Sheet */}
-            <div className="relative bg-white rounded-[40px] shadow-2xl animate-slide-up w-full max-w-lg mx-auto overflow-hidden flex flex-col max-h-[92vh]">
+            <div className="relative bg-white rounded-t-[40px] md:rounded-[40px] shadow-2xl animate-slide-up w-full max-w-lg mx-auto overflow-hidden flex flex-col max-h-[85vh] max-h-[85dvh]">
                 {/* Fixed Header */}
                 <div className="shrink-0 p-6 pb-0">
                     {/* Drag Handle UI */}
-                    <div className="w-12 h-1.5 bg-gray-100 rounded-full mx-auto mb-6 cursor-pointer" onClick={onClose}></div>
+                    <div className="w-12 h-1.5 bg-gray-100 rounded-full mx-auto mb-4 cursor-pointer" onClick={onClose}></div>
                     
                     {/* Header with Title */}
                     <div className="pb-4">
@@ -167,11 +155,11 @@ const ReviewModal = ({ isOpen, onClose, bookId, bookTitle }) => {
 
                 {/* Sticky Footer Actions */}
                 {!success && (
-                    <div className="shrink-0 p-6 pt-4 bg-white border-t border-gray-50 flex flex-col space-y-3">
+                    <div className="shrink-0 p-4 pt-4 bg-white border-t border-gray-50 flex flex-col space-y-2">
                         <button
                             onClick={handleSubmit}
                             disabled={loading || isOverLimit}
-                            className={`w-full py-5 rounded-2xl font-black uppercase text-xs tracking-widest shadow-xl transition-all active:scale-[0.98] flex items-center justify-center space-x-2
+                            className={`w-full py-4 rounded-2xl font-black uppercase text-xs tracking-widest shadow-xl transition-all active:scale-[0.98] flex items-center justify-center space-x-2
                                 ${(loading || isOverLimit) 
                                     ? 'bg-gray-200 text-gray-400 cursor-not-allowed shadow-none' 
                                     : 'bg-secondary text-white shadow-secondary/20 hover:bg-secondary/90'}`}
