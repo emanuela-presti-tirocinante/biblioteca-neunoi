@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { ArrowLeft } from 'lucide-react';
+import { ChevronLeft } from 'lucide-react';
 
 const Navbar = () => {
     const { user, logout } = useAuth();
@@ -31,14 +31,14 @@ const Navbar = () => {
             <div className="max-w-[390px] mx-auto px-4">
                 <div className="flex justify-between items-center h-14">
                     {/* Logo & Back Section */}
-                    <div className="flex items-center">
+                    <div className="flex items-center -ml-1">
                         {location.pathname !== '/' && (
                             <button 
                                 onClick={() => navigate(-1)}
-                                className="mr-3 p-1 rounded-full hover:bg-white/10 text-white transition-all active:scale-90"
+                                className="mr-1 p-1 rounded-full hover:bg-white/10 text-white transition-all active:scale-90"
                                 aria-label="Indietro"
                             >
-                                <ArrowLeft size={20} />
+                                <ChevronLeft size={24} strokeWidth={2.5} />
                             </button>
                         )}
                         <Link to="/" className="flex items-center" onClick={() => setIsDropdownOpen(false)}>
