@@ -56,7 +56,10 @@ router.post('/', auth, async (req, res) => {
         // Notifica admin nuova richiesta
         try {
             const admins = await User.findAll({ where: { role: 'admin' } });
+            console.log(`[DEBUG - Notifica Admin] Trovati ${admins.length} amministratori:`, admins.map(a => a.email));
+            
             for (const admin of admins) {
+                console.log(`[DEBUG - Notifica Admin] Tentativo invio email a: ${admin.email}`);
                 await sendEmail(
                     admin.email,
                     `Nuova richiesta di prestito — ${book.titolo}`,
