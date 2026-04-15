@@ -136,8 +136,9 @@ const AdminBookForm = () => {
                             </svg>
                         </button>
                         <div>
-                            <span className="text-[10px] font-black text-primary uppercase tracking-widest">Procedura Amministrativa</span>
-                            <h2 className="text-lg font-black text-primary uppercase tracking-tight">Inserimento Dati Catalogo</h2>
+                            <h2 className="text-lg font-black text-primary uppercase tracking-tight">
+                                {isEditing ? 'Modifica libro' : 'Nuovo libro'}
+                            </h2>
                         </div>
                     </div>
 

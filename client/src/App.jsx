@@ -25,6 +25,7 @@ function App() {
                 position="top-center" 
                 richColors 
                 expand={true}
+                duration={3000}
                 toastOptions={{
                     style: { zIndex: 9999 }
                 }}

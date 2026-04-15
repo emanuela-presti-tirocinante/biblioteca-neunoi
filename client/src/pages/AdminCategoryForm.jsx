@@ -86,8 +86,9 @@ const AdminCategoryForm = () => {
                             </svg>
                         </button>
                         <div>
-                            <span className="text-[10px] font-black text-primary uppercase tracking-widest">Archivio Digitale</span>
-                            <h2 className="text-lg font-black text-primary uppercase tracking-tight">Struttura Categorie</h2>
+                            <h2 className="text-lg font-black text-primary uppercase tracking-tight">
+                                {isEditing ? 'Modifica categoria' : 'Nuova categoria'}
+                            </h2>
                         </div>
                     </div>
 
