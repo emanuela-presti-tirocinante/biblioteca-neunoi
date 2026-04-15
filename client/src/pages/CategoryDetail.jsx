@@ -7,8 +7,6 @@ import { MessageCircle } from 'lucide-react';
 import ReviewModal from '../components/ReviewModal';
 import { toast } from 'sonner';
 
-import BackButton from '../components/BackButton';
-
 const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
 
 const CategoryDetail = () => {
@@ -226,8 +224,7 @@ const CategoryDetail = () => {
     return (
         <div className="flex flex-col min-h-full pb-20 relative">
             {/* Red Header Banner */}
-            <div className="bg-secondary p-8 text-center border-b-4 border-white relative">
-                <BackButton className="absolute left-4 top-1/2 -translate-y-1/2" />
+            <div className="bg-secondary p-8 text-center border-b-4 border-white">
                 <h1 className="text-white text-xl font-black uppercase tracking-widest">
                     CATEGORIE
                 </h1>

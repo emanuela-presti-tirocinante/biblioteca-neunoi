@@ -1,10 +1,11 @@
-import { useState, useRef, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { ArrowLeft } from 'lucide-react';
 
 const Navbar = () => {
     const { user, logout } = useAuth();
     const navigate = useNavigate();
+    const location = useLocation();
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const dropdownRef = useRef(null);
 
@@ -28,14 +29,25 @@ const Navbar = () => {
         <nav className="bg-primary shadow-sm sticky top-0 z-50">
             <div className="max-w-[390px] mx-auto px-4">
                 <div className="flex justify-between items-center h-14">
-                    {/* Logo Section */}
-                    <Link to="/" className="flex items-center" onClick={() => setIsDropdownOpen(false)}>
-                        <img
-                            src="/logo-neunoi.png"
-                            alt="neu [nòi]"
-                            className="h-8 w-auto"
-                        />
-                    </Link>
+                    {/* Logo & Back Section */}
+                    <div className="flex items-center">
+                        {location.pathname !== '/' && (
+                            <button 
+                                onClick={() => navigate(-1)}
+                                className="mr-3 p-1 rounded-full hover:bg-white/10 text-white transition-all active:scale-90"
+                                aria-label="Indietro"
+                            >
+                                <ArrowLeft size={20} />
+                            </button>
+                        )}
+                        <Link to="/" className="flex items-center" onClick={() => setIsDropdownOpen(false)}>
+                            <img
+                                src="/logo-neunoi.png"
+                                alt="neu [nòi]"
+                                className="h-8 w-auto"
+                            />
+                        </Link>
+                    </div>
 
                     {/* Navigation Links */}
                     <div className="flex items-center space-x-2 text-white text-[10px] font-bold uppercase tracking-tight">
