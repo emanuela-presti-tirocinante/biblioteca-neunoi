@@ -151,11 +151,11 @@ const Dashboard = () => {
                 </h1>
             </div>
 
-            {/* Tab Selector */}
-            <div className="bg-white border-b border-gray-100 flex justify-between px-6 py-4 sticky top-14 z-20 shadow-sm overflow-x-auto no-scrollbar space-x-3 items-center">
+            {/* Tab Selector - Fixed and fully visible */}
+            <div className="bg-white border-b border-gray-100 px-4 py-4 flex w-full space-x-2 items-center sticky top-0 z-20 shadow-sm">
                 <button
                     onClick={() => setActiveTab('in_corso')}
-                    className={`flex-1 relative overflow-visible py-2.5 px-4 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all whitespace-nowrap
+                    className={`flex-1 relative overflow-visible py-2.5 px-2 rounded-xl text-[9px] font-black uppercase tracking-wider transition-all whitespace-nowrap
                         ${activeTab === 'in_corso'
                             ? 'bg-secondary text-white shadow-md'
                             : 'bg-[#F5F5F5] text-gray-500 hover:bg-gray-200'}`}
@@ -165,7 +165,7 @@ const Dashboard = () => {
                 </button>
                 <button
                     onClick={() => setActiveTab('in_attesa')}
-                    className={`flex-1 relative overflow-visible py-2.5 px-4 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all whitespace-nowrap
+                    className={`flex-1 relative overflow-visible py-2.5 px-2 rounded-xl text-[9px] font-black uppercase tracking-wider transition-all whitespace-nowrap
                         ${activeTab === 'in_attesa'
                             ? 'bg-secondary text-white shadow-md'
                             : 'bg-[#F5F5F5] text-gray-500 hover:bg-gray-200'}`}
@@ -175,7 +175,7 @@ const Dashboard = () => {
                 </button>
                 <button
                     onClick={() => setActiveTab('storico')}
-                    className={`flex-1 relative overflow-visible py-2.5 px-4 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all whitespace-nowrap
+                    className={`flex-1 relative overflow-visible py-2.5 px-2 rounded-xl text-[9px] font-black uppercase tracking-wider transition-all whitespace-nowrap
                         ${activeTab === 'storico'
                             ? 'bg-secondary text-white shadow-md'
                             : 'bg-[#F5F5F5] text-gray-500 hover:bg-gray-200'}`}
@@ -185,12 +185,12 @@ const Dashboard = () => {
                 </button>
                 <button
                     onClick={() => setActiveTab('recensioni')}
-                    className={`flex-1 relative overflow-visible py-2.5 px-4 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all whitespace-nowrap flex items-center justify-center gap-1
+                    className={`flex-1 relative overflow-visible py-2.5 px-1 rounded-xl text-[9px] font-black uppercase tracking-wider transition-all whitespace-nowrap flex items-center justify-center gap-1
                         ${activeTab === 'recensioni'
                             ? 'bg-secondary text-white shadow-md'
                             : 'bg-[#F5F5F5] text-gray-500 hover:bg-gray-200'}`}
                 >
-                    <MessageCircle size={12} className={activeTab === 'recensioni' ? 'text-white' : 'text-gray-400'} />
+                    <MessageCircle size={10} className={activeTab === 'recensioni' ? 'text-white' : 'text-gray-400'} />
                     Recensioni
                     <Badge count={reviews.filter(r => r.approvata).length} active={activeTab === 'recensioni'} />
                 </button>
