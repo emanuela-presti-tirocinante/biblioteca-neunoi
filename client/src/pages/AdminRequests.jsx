@@ -2,8 +2,6 @@ import { useState, useEffect } from 'react';
 import api from '../utils/api';
 import { toast } from 'sonner';
 
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
-
 const AdminRequests = () => {
     const [activeTab, setActiveTab] = useState('pending'); // 'pending', 'active', 'history'
     const [loans, setLoans] = useState([]);
@@ -74,32 +72,21 @@ const AdminRequests = () => {
     const fetchReviews = async () => {
         setIsLoadingReviews(true);
         try {
-            const response = await fetch(`${BASE_URL}/reviews/pending`, {
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                }
-            });
-            const data = await response.json();
-            setReviews(data);
+            const response = await api.get('/reviews/pending');
+            setReviews(response.data);
         } catch (err) {
-            console.error(err);
+            console.error("Error fetching reviews:", err);
         } finally {
             setIsLoadingReviews(false);
         }
     };
 
     const handleApproveReview = async (reviewId) => {
-        const promise = fetch(`${BASE_URL}/reviews/${reviewId}/approva`, {
-            method: 'PATCH',
-            headers: {
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
-            }
-        });
+        const promise = api.patch(`/reviews/${reviewId}/approva`);
 
         toast.promise(promise, {
             loading: 'Approvazione recensione...',
-            success: (res) => {
-                if (!res.ok) throw new Error();
+            success: () => {
                 fetchReviews();
                 return 'Recensione approvata!';
             },
@@ -108,17 +95,11 @@ const AdminRequests = () => {
     };
 
     const handleDeleteReview = async (reviewId) => {
-        const promise = fetch(`${BASE_URL}/reviews/${reviewId}`, {
-            method: 'DELETE',
-            headers: {
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
-            }
-        });
+        const promise = api.delete(`/reviews/${reviewId}`);
 
         toast.promise(promise, {
             loading: 'Eliminazione recensione...',
-            success: (res) => {
-                if (!res.ok) throw new Error();
+            success: () => {
                 fetchReviews();
                 return 'Recensione eliminata';
             },
