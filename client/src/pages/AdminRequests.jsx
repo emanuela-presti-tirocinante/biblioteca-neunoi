@@ -111,7 +111,11 @@ const AdminRequests = () => {
     const pendingRequests = loans.filter(l => l.stato === 'richiesto');
     const activeLoans = loans.filter(l => l.stato === 'approvato');
     const historyLoans = loans.filter(l => ['rifiutato', 'restituito', 'scaduto'].includes(l.stato));
-    const pendingReviews = reviews.filter(r => !r.approvata);
+    const pendingReviews = reviews.filter(r => {
+        // Robust check: approved is true only if it's explicitly true, 1, "1" or "true"
+        const isApproved = r.approvata === true || r.approvata === 1 || r.approvata === '1' || r.approvata === 'true';
+        return !isApproved;
+    });
 
     const renderTabContent = () => {
         if (isLoading) {
